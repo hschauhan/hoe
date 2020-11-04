@@ -1619,6 +1619,7 @@ void do_set_indent_tabs_mode(EditState *s, int mode)
 
 void do_quit(EditState *s);
 void do_load(EditState *s, const char *filename);
+void do_load_at_line(EditState *s, const char *filename, int line);
 void do_switch_to_buffer(EditState *s, const char *bufname);
 void do_break(EditState *s);
 void do_insert_file(EditState *s, const char *filename);
@@ -4484,6 +4485,12 @@ void do_load(EditState *s, const char *filename)
     do_load1(s, filename, 0);
 }
 
+void do_load_at_line(EditState *s, const char *filename, int line)
+{
+    do_load1(s, filename, 0);
+    do_goto_line(s, line);
+}
+
 void do_find_alternate_file(EditState *s, const char *filename)
 {
     do_load1(s, filename, 1);
@@ -6245,6 +6252,8 @@ void qe_init(void *opaque)
     QEDisplay *dpy;
     int i, optind, is_player;
     char *home_path;
+    char *fstr;
+    int line = 0;
 
     /* compute resources path */
     strcpy(qe_state.res_path, 
@@ -6395,7 +6404,15 @@ void qe_init(void *opaque)
 
     /* load file(s) */
     for(i=optind;i<argc;i++) {
-        do_load(s, argv[i]);
+        fstr = argv[i];
+        if (*fstr == '+') {
+            fstr++;
+            line = atoi(fstr);
+            continue;
+        }
+
+        do_load_at_line(s, argv[i], line);
+	do_refresh(s);
     }
     
     if (is_player && optind >= argc) {
