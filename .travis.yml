@@ -6,4 +6,3 @@ before_install:
 script: ./configure && make && make -C plugins
 os:
   - linux
-  - osx
