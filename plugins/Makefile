@@ -8,9 +8,9 @@
 # modify to get the path of the qemacs sources
 QEMACS_PATH=../
 # define the name of your plugin
-LIB=my_plugin.so
+LIB=rect_op_plugin.so
 # define the object files it contains
-OBJS=my_plugin.o
+OBJS=rect_op_plugin.o
 
 INCLUDES=-I$(QEMACS_PATH)
 DEFINES=-DQE_MODULE
