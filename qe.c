@@ -39,6 +39,7 @@ void print_at_byte(QEditScreen *screen,
 static void do_cmd_set_mode(EditState *s, const char *name);
 void do_delete_window(EditState *s, int force);
 void do_end_macro(EditState *s);
+void center_cursor(EditState *s);
 static void get_default_path(EditState *s, char *buf, int buf_size);
 static EditBuffer *predict_switch_to_buffer(EditState *s);
 static StringArray *get_history(const char *name);
@@ -656,6 +657,44 @@ void do_delete_char(EditState *s)
 
     eb_nextc(s->b, s->offset, &offset1);
     eb_delete(s->b, s->offset, offset1 - s->offset);
+}
+
+void do_delete_trailing_whitespace(EditState *s)
+{
+    int c, offset1, i, nr_spaces, twl = 0, tline_num, tcol_num;
+    char status[128];
+
+    /* move to begining of file */
+    do_eof(s);
+    eb_get_pos(s->b, &tline_num, &tcol_num, s->offset);
+    do_bof(s);
+
+    for (i = 0; i < tline_num; i++) {
+        do_goto_line(s, i);
+
+        nr_spaces = 0;
+        /* goto end of line and start backtrack */
+        do_eol(s);
+        for (;;) {
+            c = eb_prevc(s->b, s->offset, &offset1);
+            if (!isspace(c) || c == '\n')
+                break;
+            s->offset = offset1;
+            nr_spaces++;
+        }
+
+        if (nr_spaces > 0) {
+            eb_delete(s->b, s->offset, nr_spaces);
+            twl++;
+        }
+    }
+
+    if (twl > 0)
+        snprintf(status, sizeof(status), "Deleted trailing whitespaces from %d line(s)", twl);        
+    else
+        snprintf(status, sizeof(status), "No trailing whitespaces");
+
+    put_status(s, status);
 }
 
 void do_backspace(EditState *s)
