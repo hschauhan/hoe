@@ -63,10 +63,8 @@ static int dired_sort_func(const void *p1, const void *p2)
 {
     StringItem *item1 = *(StringItem **)p1;
     StringItem *item2 = *(StringItem **)p2;
-    int len1, len2, is_dir1, is_dir2;
+    int is_dir1, is_dir2;
 
-    len1 = strlen(item1->str);
-    len2 = strlen(item2->str);
     is_dir1 = (strchr(item1->str, '/') != NULL);
     is_dir2 = (strchr(item2->str, '/') != NULL);
     

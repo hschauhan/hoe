@@ -21,8 +21,14 @@ LIB=libqhtml.a
 all: $(LIB)
 
 $(LIB): $(OBJS)
-	rm -f $@
-	$(AR) rc $@ $(OBJS)
+	@echo "(RM) $@"
+	@rm -f $@
+	@echo "(ARCHIVE) $@"
+	@$(AR) rc $@ $(OBJS)
+
+%.o : %.c
+	@echo "(CC) $<"
+	@$(CC) $(DEFINES) $(CFLAGS) -o $@ -c $<
 
 clean:
 	rm -f *~ *.o *.a csstoqe html_style.c docbook_style.c
@@ -31,10 +37,13 @@ clean:
 # build default style sheet file
 #
 csstoqe: csstoqe.c
-	$(HOST_CC) $(CFLAGS) -o $@ $<
+	@echo "(HOST_CC) $<"
+	@$(HOST_CC) $(CFLAGS) -o $@ $<
 
 html_style.c: html.css csstoqe
-	./csstoqe html_style < $< > $@
+	@echo "(GEN) $@"
+	@./csstoqe html_style < $< > $@
 
 docbook_style.c: docbook.css csstoqe
-	./csstoqe docbook_style < $< > $@
+	@echo "(GEN) $@"
+	@./csstoqe docbook_style < $< > $@

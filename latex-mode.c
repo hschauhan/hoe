@@ -152,6 +152,7 @@ static void do_tex_insert_quote(EditState *s)
     offset_bol = eb_goto_bol(s->b, s->offset);
     offset1 = offset_bol;
     len = eb_get_line(s->b, buf, MAX_BUF_SIZE - 1, &offset1);
+    (void)len;
     p = s->offset - offset_bol;
 
     if(p >= 1 && buf[p-1] == '\"') {
@@ -230,11 +231,11 @@ static void latex_cmd_run(void *opaque, char *cmd)
     p = strrchr(func->es->b->filename, '/');
     if(p == func->es->b->filename)
         p++;
-	len = p - func->es->b->filename + 1;
-	wd = (char *)malloc(len);
-	pstrcpy(wd, len, func->es->b->filename);
+    len = p - func->es->b->filename + 1;
+    wd = (char *)malloc(len);
+    pstrcpy(wd, len, func->es->b->filename);
     chdir(wd);
-	free(wd);
+    free(wd);
 
     if(func->output_to_buffer) {
         /* if the buffer already exists, kill it */

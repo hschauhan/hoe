@@ -237,6 +237,8 @@ void eb_insert_buffer(EditBuffer *dest, int dest_offset,
     Page *p, *p_start, *q;
     int size_start, len, n, page_index;
 
+    (void)size_start; /* shutoff warning */
+
     if (size == 0)
         return;
 
@@ -605,7 +607,7 @@ static void eb_addlog(EditBuffer *b, enum LogOperation op,
         return;
     if (!b->log_buffer) {
         char buf[256];
-        snprintf(buf, sizeof(buf), "*log <%s>*", b->name);
+        snprintf_nowarn(buf, sizeof(buf), "*log <%s>*", b->name);
         b->log_buffer = eb_new(buf, BF_SYSTEM);
         if (!b->log_buffer)
             return;
@@ -783,7 +785,7 @@ int eb_prevc(EditBuffer *b, int offset, int *prev_ptr)
             while (*q >= 0x80 && *q < 0xc0) {
                 if (offset == 0 || q == buf) {
                     /* error : take only previous char */
-                    offset += buf - 1 - q;
+                    offset += (intptr_t)((intptr_t)buf - 1) - (intptr_t)q;
                     ch = buf[sizeof(buf) - 1];
                     goto the_end;
                 }

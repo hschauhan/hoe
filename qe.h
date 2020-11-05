@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -19,6 +20,7 @@
 #endif
 
 /* OS specific defines */
+#define snprintf_nowarn(...) (snprintf(__VA_ARGS__) < 0 ? abort() : (void)0)
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -716,7 +718,8 @@ typedef struct EditState {
     struct EditState *next_window;
 } EditState;
 
-#define SAVED_DATA_SIZE ((intptr_t)&((EditState *)0)->end_of_saved_data)
+//#define SAVED_DATA_SIZE ((intptr_t)&((EditState *)0)->end_of_saved_data)
+#define SAVED_DATA_SIZE (offsetof(EditState, end_of_saved_data))
 
 int to_hex(int key);
 

@@ -1358,6 +1358,8 @@ static void css_bidir_split_box(BidirSplitState *s,  CSSBox *box)
     unsigned long offset;
     NextCharFunc nextc;
 
+    (void)c;
+
     l = s->l;
     pos = s->pos;
     if (props->display == CSS_DISPLAY_INLINE_TABLE ||
@@ -2107,6 +2109,8 @@ static int css_layout_inline_box(InlineLayout *s,
     int ch, space, eob, ret, box_stack_base, i;
     QEFont *font;
     NextCharFunc nextc;
+
+    (void)eob;
 
     if (s->ctx->abort_func(s->ctx->abort_opaque))
         return -1;
