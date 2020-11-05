@@ -292,6 +292,8 @@ static void do_c_indent(EditState *s)
     char buf1[64], *q;
     int stack_ptr;
 
+    (void)stack;
+
     /* find start of line */
     eb_get_pos(s->b, &line_num, &col_num, s->offset);
     line_num1 = line_num;

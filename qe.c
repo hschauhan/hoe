@@ -264,7 +264,9 @@ void command_completion(StringArray *cs, const char *input)
     int count, len;
     CmdDef *d;
     count = 0;
-    
+
+    (void)count;
+
     len = strlen(input);
     d = first_cmd;
     while (d != NULL) {
@@ -483,7 +485,9 @@ void do_fill_paragraph(EditState *s)
     int offset, offset1, n, c, line_count, indent_size;
     int chunk_start, word_start, word_size, word_count, space_size;
     unsigned char buf[1];
-    
+ 
+    (void)line_count;
+
     /* find start & end of paragraph */
     par_start = eb_start_paragraph(s->b, s->offset);
     par_end = eb_next_paragraph(s->b, par_start);
@@ -4027,6 +4031,8 @@ void do_minibuffer_exit(EditState *s, int abort)
     char buf[4096], *retstr;
     int len;
 
+    (void)len;
+
     /* if completion is activated, then select current file only if
        the selection is highlighted */
     if (completion_popup_window && 
@@ -5358,6 +5364,8 @@ void do_split_window(EditState *s, int horiz)
     EditState *e;
     int x, y;
 
+    (void)e;
+
     /* cannot split minibuf */
     if (s->minibuf)
         return;
@@ -5936,6 +5944,8 @@ int parse_config_file(EditState *s, const char *filename)
     int nb_args, c, i, first;
     void *args[MAX_CMD_ARGS];
     unsigned char args_type[MAX_CMD_ARGS];
+
+    (void)err;
 
     f = fopen(filename, "r");
     if (!f)

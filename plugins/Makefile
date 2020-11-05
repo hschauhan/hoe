@@ -23,15 +23,18 @@ CFLAGS=-O2 -Wall -g -fPIC $(INCLUDES) $(DEFINES)
 all: $(DIST_LIB)
 
 $(DIST_LIB): $(LIB)
-	install -s -m 644 $< $@
+	@echo "(INSTALL) $@"
+	@install -s -m 644 $< $@
 
 install: $(DIST_LIB)
 
 $(LIB): $(OBJS) Makefile
-	$(CC) -shared -o $@ $(OBJS)
+	@echo "(LINK) $@"
+	@$(CC) -shared -o $@ $(OBJS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@echo "(CC) $<"
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	rm -f *.o *.so *~

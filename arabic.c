@@ -216,7 +216,7 @@ static const ArabicChar *find_char(int ch)
 int arab_join(unsigned int *line, unsigned int *ctog, int len)
 {
     int a, b, c, i, j, res;
-    const ArabicChar *aa, *bb, *cc;
+    const ArabicChar *bb, *cc;
 
     a = 0;
     for(i=0;i<len;) {
@@ -231,7 +231,6 @@ int arab_join(unsigned int *line, unsigned int *ctog, int len)
             i++;
         }
         /* apply Unicode Arabic substitution rules */
-        aa = find_char(a); /* previous */
         bb = find_char(b); /* current */
         cc = find_char(c); /* next */
 

@@ -110,17 +110,24 @@ endif
 # must be the last object
 OBJS+= qeend.o
 
-all: lib $(TARGETS)
+all: lib $(TARGETS) plugins
 
 lib:
-	make -C libqhtml all
+	@make --no-print-directory -C libqhtml all
+
+.PHONY: plugins
+plugins:
+	@echo "(MAKE) plugins"
+	@make -C plugins all
 
 qe_g: $(OBJS) $(DEP_LIBS)
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	@echo "(LINK) $@"
+	@$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 qe$(EXE): qe_g
-	cp $< $@
-	$(STRIP) $@
+	@cp $< $@
+	@echo "(STRIP) $@"
+	@$(STRIP) $@
 	@ls -l $@
 
 ffplay: qe$(EXE)
@@ -143,10 +150,12 @@ fbfrender.o: fbfrender.c fbfrender.h libfbf.h
 html2png.o: html2png.c qe.h
 
 %.o : %.c
-	$(CC) $(DEFINES) $(CFLAGS) -o $@ -c $<
+	@echo "(CC) $<"
+	@$(CC) $(DEFINES) $(CFLAGS) -o $@ -c $<
 
 clean:
 	make -C libqhtml clean
+	make -C plugins clean
 	rm -f *.o *~ TAGS gmon.out core \
            qe qe_g qe.exe qfribidi kmaptoqe ligtoqe \
            html2png fbftoqe fbffonts.c
@@ -284,10 +293,12 @@ unifont.fbf
 FONTS:=$(addprefix fonts/,$(FONTS))
 
 fbftoqe: fbftoqe.c
-	$(CC) $(CFLAGS) -o $@ $<
+	@echo "(CC) $<"
+	@$(CC) $(CFLAGS) -o $@ $<
 
 fbffonts.c: fbftoqe $(FONTS)
-	./fbftoqe $(FONTS) > $@
+	@echo "(GEN) $@"
+	@./fbftoqe $(FONTS) > $@
 
 #
 # html2png tool (XML/HTML/CSS2 renderer test tool)
@@ -298,7 +309,8 @@ OBJS=util.o cutils.o \
      libfbf.o fbfrender.o cfb.o fbffonts.o
 
 html2png: html2png.o $(OBJS) libqhtml/libqhtml.a
-	$(HOST_CC) $(LDFLAGS) -o $@ html2png.o $(OBJS) \
+	@echo "(HOST_CC) $@"
+	@$(HOST_CC) $(LDFLAGS) -o $@ html2png.o $(OBJS) \
                    -L./libqhtml -lqhtml $(HTMLTOPPM_LIBS)
 
 # autotest target
