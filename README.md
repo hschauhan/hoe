@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/hschauhan/qemacs.svg?branch=main)](https://travis-ci.com/hschauhan/qemacs)
+
 # Introduction
 
 QEmacs (for Quick Emacs) is a very small but powerful UNIX editor. It has features that even big editors lack :
