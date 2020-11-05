@@ -6412,6 +6412,7 @@ void qe_init(void *opaque)
         }
 
         do_load_at_line(s, argv[i], line);
+        center_cursor(s);
 	do_refresh(s);
     }
     
