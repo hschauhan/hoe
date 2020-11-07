@@ -28,9 +28,7 @@ typedef struct CscopeOutput {
 } CscopeOutput;
 
 typedef struct CscopeContext {
-    EditBuffer *cso_buffer;
     EditState *os;
-    EditState *cos;
     int op;
     char *sym;
     char symdir[1024];
@@ -108,7 +106,7 @@ int do_cscope_query(char *symdir, int opc, char *sym, char **response, int *len)
             pclose(co);
             return -1;
         }
-        memset(ob + (nr_reads * OUTBUF_WIN_SZ), 0, OUTBUF_WIN_SZ);
+        memset(ob + ((nr_reads-1) * OUTBUF_WIN_SZ), 0, OUTBUF_WIN_SZ);
         outbuf = ob;
     }
 
@@ -164,6 +162,7 @@ void parse_cscope_line(char *line, CscopeOutput *out)
 
         case 2: /* line number */
             i = 0;
+            memset(lstr, 0, sizeof(lstr));
             while (*line != ' ') {
                 if (i >= 7) {
                     line++;
@@ -232,6 +231,7 @@ void do_cscope_query_and_show(EditState *s)
     EditState *e;
     int x, y, rlen, ln, cn;
     char *cs_resp;
+    char fpath[2048];
 
     if (do_cscope_query(cs.symdir, cs.op, cs.sym, &cs_resp, &rlen) < 0) {
         put_status(s, "cscope query failed");
@@ -253,52 +253,95 @@ void do_cscope_query_and_show(EditState *s)
     cs.out = parse_cscope_output(cs_resp, ln);
     (void)cn;
 
-    if (!split_horizontal) {
-        x = (s->x2 + s->x1) / 2;
-        e = edit_new(b, x, s->y1, s->x2 - x,
-                     s->y2 - s->y1, WF_MODELINE);
+    if (ln > 1) {
+        if (!split_horizontal) {
+            x = (s->x2 + s->x1) / 2;
+            e = edit_new(b, x, s->y1, s->x2 - x,
+                         s->y2 - s->y1, WF_MODELINE);
 
-        s->x2 = x;
-        s->flags |= WF_RSEPARATOR;
+            s->x2 = x;
+            s->flags |= WF_RSEPARATOR;
+        } else {
+            y = (s->y2 + s->y1) / 2;
+            e = edit_new(b, s->x1, y,
+                         s->x2 - s->x1, s->y2 - y, 
+                         WF_MODELINE | (s->flags & WF_RSEPARATOR));
+            s->y2 = y;
+        }
+
+        do_set_mode(e, &cscope_mode, NULL);
+
+        qs->active_window = e;
+        do_refresh(e);
     } else {
-        y = (s->y2 + s->y1) / 2;
-        e = edit_new(b, s->x1, y,
-                     s->x2 - s->x1, s->y2 - y, 
-                     WF_MODELINE | (s->flags & WF_RSEPARATOR));
-        s->y2 = y;
+        snprintf(fpath, sizeof(fpath), "%s/%s", cs.symdir, cs.out[0].file);
+        do_load_at_line(s, fpath, cs.out[0].line);
     }
-
-    do_set_mode(e, &cscope_mode, NULL);
-
-    qs->active_window = e;
-    do_refresh(e);
 }
 
 static void do_query_symbol(void *opaque, char *reply)
 {
-    cs.sym = reply;
+    if (reply && strlen(reply) != 0) {
+        if (cs.sym) free(cs.sym);
+        cs.sym = reply;
+    }
+
+    if (cs.sym == NULL)
+        return;
+
     do_cscope_query_and_show(cs.os);
 }
 
-static void cscope_find_symbol(EditState *s)
+static void do_cscope_operation(EditState *s, int op)
 {
-    cs.op = 0;
+    char status[512];
+    char suggestion[256];
+    cs.op = op;
     cs.os = s;
 
-    qe_ungrab_keys();
-    minibuffer_edit(NULL, "Symbol: ",
-                    NULL, NULL,
-                    do_query_symbol, (void *)s);
-}
-
-static void cscope_find_global_definition(EditState *s)
-{
-    cs.op = 1;
-    cs.os = s;
+    cs.sym = do_read_word_at_offset(s);
+    if (cs.sym == NULL || (cs.sym && strlen(cs.sym) == 0)) {
+        memset(suggestion, 0, sizeof(suggestion));
+        cs.sym = NULL;
+    } else {
+        snprintf(suggestion, sizeof(suggestion), "[default %s]", cs.sym);
+    }
 
     qe_ungrab_keys();
-    minibuffer_edit(NULL, "Symbol (definition): ",
-                    NULL, NULL,
+    switch(op) {
+    case 0:
+        snprintf(status, sizeof(status), "Find symbol %s: ", suggestion);
+        break;
+    case 1:
+        snprintf(status, sizeof(status), "Find global definition %s: ", suggestion);
+        break;
+    case 2:
+        snprintf(status, sizeof(status), "Find functions called by this function %s: ", suggestion);
+        break;
+    case 3:
+        snprintf(status, sizeof(status), "Find functions calling this function %s: ", suggestion);
+        break;
+    case 4:
+        snprintf(status, sizeof(status), "Find text string %s: ", suggestion);
+        break;
+    case 5:
+        put_status(s, "Change text string not supported");
+        return;
+    case 6:
+        put_status(s, "Find egrep pattern not supported ");
+        return;
+    case 7:
+        snprintf(status, sizeof(status), "Find file %s: ", suggestion);
+        break;
+    case 8:
+        snprintf(status, sizeof(status), "Find #including file %s: ", suggestion);
+        break;
+    case 9:
+        snprintf(status, sizeof(status), "Find assignments to symbol %s: ", suggestion);
+        break;
+    }
+
+    minibuffer_edit(NULL, status, NULL, NULL,
                     do_query_symbol, (void *)s);
 }
 
@@ -309,6 +352,9 @@ static void do_query_symbol_directory(void *opaque, char *reply)
     char *or = reply;
     struct stat st;
     char cscope_file[2048];
+
+    if (reply == NULL)
+        return;
 
     if (*reply == '~') {
         if ((homedir = getenv("HOME")) == NULL) {
@@ -384,23 +430,40 @@ static CmdDef cscope_mode_commands[] = {
 };
 
 static CmdDef cscope_global_commands[] = {
-    CMD0( KEY_F12, KEY_NONE, "cscope-set-symbol-directory", do_cscope_set_symbol_directory)
-    CMD0( KEY_F2, KEY_NONE, "cscope-find-symbol", cscope_find_symbol)
-    CMD0( KEY_F3, KEY_NONE, "cscope-find-global-definition",
-         cscope_find_global_definition)
+    CMD0( KEY_CTRLXRET('s'), KEY_NONE, "cscope-set-symbol-directory", do_cscope_set_symbol_directory)
+    CMD1( KEY_F2, KEY_NONE, "cscope-find-symbol", do_cscope_operation, 0)
+    CMD1( KEY_F3, KEY_NONE, "cscope-find-global-definition",
+         do_cscope_operation, 1)
+    CMD1( KEY_F4, KEY_NONE, "cscope-find-function-calling-this-function",
+         do_cscope_operation, 2)
+    CMD1( KEY_F5, KEY_NONE, "cscope-find-function-called-by-this-function",
+         do_cscope_operation, 3)
+    CMD1( KEY_F6, KEY_NONE, "cscope-find-string",
+         do_cscope_operation, 4)
+    CMD1( KEY_F7, KEY_NONE, "cscope-find-file",
+         do_cscope_operation, 7)
+    CMD1( KEY_F8, KEY_NONE, "cscope-find-#including-file",
+         do_cscope_operation, 8)
+    CMD1( KEY_F9, KEY_NONE, "cscope-find-assignment",
+         do_cscope_operation, 9)
     CMD_DEF_END,
 };
 
 static int cscope_mode_init(EditState *s, ModeSavedData *saved_data)
 {
     list_mode.mode_init(s, saved_data);
-
     return 0;
 }
 
 static void cscope_mode_close(EditState *s)
 {
     list_mode.mode_close(s);
+    if (cs.out) {
+        free(cs.out);
+    }
+    if (cs.sym) {
+        free(cs.sym);
+    }
 }
 
 static int cscope_mode_probe(ModeProbeData *p)

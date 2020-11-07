@@ -12,6 +12,12 @@
 // M-key : Meta + key
 // Read util.c to get all the key names
 global_set_key("C-x s", "set-style");
+global_set_key("C-c s s", "cscope-find-symbol");
+global_set_key("C-c s g", "cscope-find-global-definition");
+global_set_key("C-c s c", "cscope-find-function-calling-this-function");
+global_set_key("C-c s i", "cscope-find-#including-file");
+global_set_key("C-c s f", "cscope-find-file");
+global_set_key("C-c s p", "cscope-find-string");
 
 // set X11 display size
 set_display_size(80, 50);
@@ -26,13 +32,19 @@ set_system_font("serif", "times,unifont");
 
 // simple styles
 set_style("mode-line", "background-color", "white");
+
 set_style("comment", "font-family", "sans");
 set_style("comment", "font-size", "12");
 set_style("comment", "font-style", "italic");
+set_style("comment", "color", "yellow");
+
+set_style("string", "color", "red");
 
 set_style("keyword", "font-family", "serif");
 set_style("keyword", "font-size", "18");
+set_style("keyword", "color", "green");
 
 set_style("function", "font-family", "serif");
 set_style("function", "font-size", "18");
 set_style("function", "font-weight", "bold");
+set_style("function", "color", "blue");
