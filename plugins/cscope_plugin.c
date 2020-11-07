@@ -19,6 +19,8 @@
 #include "qe.h"
 #include <pwd.h>
 #include <string.h>
+#include <libgen.h>
+#include <unistd.h>
 
 typedef struct CscopeOutput {
     char file[1024];
@@ -31,7 +33,7 @@ typedef struct CscopeContext {
     EditState *os;
     int op;
     char *sym;
-    char symdir[1024];
+    char *symdir;
     CscopeOutput *out;
     int entries;
 } CscopeState;
@@ -45,6 +47,53 @@ CscopeState cs;
 #define OUTBUF_WIN_SZ	1024
 
 void do_load_at_line(EditState *s, const char *filename, int line);
+
+static char cscope_symbol_file_exists(char *dir)
+{
+    char cscope_file[2048];
+    struct stat st;
+
+    snprintf(cscope_file, sizeof(cscope_file), "%s/cscope.out", dir);
+
+    if (stat(cscope_file, &st) < 0) {
+        goto out;
+    }
+
+    if ((st.st_mode & S_IFMT) != S_IFREG) {
+        goto out;
+    }
+
+    return 1;
+
+out:
+    return 0;
+}
+
+char *get_home_dir(void)
+{
+    char *homedir = NULL;
+
+    if ((homedir = getenv("HOME")) == NULL) {
+        homedir = getpwuid(getuid())->pw_dir;
+    }
+
+    return homedir;
+}
+
+static char *search_symbol_file(char *dir)
+{
+    char *nd;
+    //char *homedir = get_home_dir();
+
+    if (!cscope_symbol_file_exists(dir)) {
+        nd = dirname(dir);
+        if (strlen(nd) == strlen("/"))
+            return NULL;
+        return search_symbol_file(nd);
+    }
+
+    return dir;
+}
 
 static void cscope_select_file(EditState *s)
 {
@@ -298,6 +347,21 @@ static void do_cscope_operation(EditState *s, int op)
     char suggestion[256];
     cs.op = op;
     cs.os = s;
+    char current_dir[1024], *c;
+    char *cdir = getcwd(current_dir, sizeof(current_dir));
+
+    if (cs.symdir == NULL) {
+        c = search_symbol_file(cdir);
+        if (c)
+            cs.symdir = strdup(c);
+    }
+
+    if (cs.symdir == NULL) {
+        put_status(s, "No symbol file located or provided. Please provide symbol file with C-X-RET s");
+        return;
+    } else {
+        put_status(s, "Symbol file at: %s", cs.symdir);
+    }
 
     cs.sym = do_read_word_at_offset(s);
     if (cs.sym == NULL || (cs.sym && strlen(cs.sym) == 0)) {
@@ -351,15 +415,18 @@ static void do_query_symbol_directory(void *opaque, char *reply)
     const char *homedir;
     char *or = reply;
     struct stat st;
-    char cscope_file[2048];
+    cs.symdir = malloc(1024);
+
+    if (cs.symdir == NULL) {
+        put_status(s, "No memory!");
+        return;
+    }
 
     if (reply == NULL)
         return;
 
     if (*reply == '~') {
-        if ((homedir = getenv("HOME")) == NULL) {
-            homedir = getpwuid(getuid())->pw_dir;
-        }
+        homedir = get_home_dir();
 
         reply++;
 
@@ -367,9 +434,9 @@ static void do_query_symbol_directory(void *opaque, char *reply)
          * and skip it.
          */
         if (*reply == '/') reply++;
-        snprintf(cs.symdir, sizeof(cs.symdir), "%s/%s", homedir, reply);
+        snprintf(cs.symdir, 1024, "%s/%s", homedir, reply);
     } else if (*reply == '/') {
-        strncpy(cs.symdir, reply, sizeof(cs.symdir)-1);
+        strncpy(cs.symdir, reply, 1023);
         cs.symdir[1023] = '\0';
     } else {
         put_status(s, "Please provide absolute path.");
@@ -390,28 +457,20 @@ static void do_query_symbol_directory(void *opaque, char *reply)
         goto out;
     }
 
-    snprintf(cscope_file, sizeof(cscope_file), "%s/cscope.out", cs.symdir);
-
-    if (stat(cscope_file, &st) < 0) {
-        if (errno == ENOENT) {
-            put_status(s, "Not cscope database found at: %s", cs.symdir);
-        } else {
-            put_status(s, "Uknown error in checking cscope database");
-        }
-        goto out;
-    }
-
-    if ((st.st_mode & S_IFMT) != S_IFREG) {
-        put_status(s, "%s is not a regular file", cscope_file);
+    if (!cscope_symbol_file_exists(cs.symdir)) {
+        put_status(s, "No symbol file in %s directory", cs.symdir);
         goto out;
     }
 
     free(or);
 
+    put_status(s, "Cscope symbol file at: %s", cs.symdir);
+
     return;
 
 out:
-    memset(cs.symdir, 0, sizeof(cs.symdir));
+    free(cs.symdir);
+    cs.symdir = NULL;
     free(or);
 }
 
@@ -463,6 +522,9 @@ static void cscope_mode_close(EditState *s)
     }
     if (cs.sym) {
         free(cs.sym);
+    }
+    if (cs.symdir) {
+        free(cs.symdir);
     }
 }
 
