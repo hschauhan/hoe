@@ -174,6 +174,9 @@ endif
 	install qe.1 $(prefix)/man/man1
 	install -m 755 -s html2png $(prefix)/bin
 
+plugin_install:
+	make -C plugins install
+
 TAGS: force
 	etags *.[ch]
 

@@ -597,6 +597,50 @@ static int eb_changecase(EditBuffer *b, int offset, int up)
     return offset + len;
 }
 
+/* XXX: only ascii */
+char *do_read_word_at_offset(EditState *s)
+{
+    int c, offset1, o_offs, lw;
+    char word[256];
+
+    o_offs = s->offset;
+    lw = 0;
+    memset(word, 0, sizeof(word));
+
+    /* move to the beginning of the word first */
+    for(;;) {
+        if (s->offset == 0) {
+            s->offset = o_offs;
+            break;
+        }
+        c = eb_prevc(s->b, s->offset, &offset1);
+        if (!isword(c))
+            break;
+        s->offset = offset1;
+    }
+
+    for (;;) {
+        if (s->offset >= s->b->total_size)
+            break;
+        c = eb_nextc(s->b, s->offset, &offset1);
+        if (!isword(c)) {
+            s->offset = o_offs;
+            break;
+        }
+        s->offset =  offset1;
+        if (lw < sizeof(word))
+            word[lw] = c;
+        lw++;
+    }
+
+    if (lw < sizeof(word))
+        word[lw] = '\0';
+
+    s->offset = o_offs;
+
+    return strdup(word);
+}
+
 void do_changecase_word(EditState *s, int up)
 {
     int c;
