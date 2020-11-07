@@ -7,34 +7,39 @@
 
 # modify to get the path of the qemacs sources
 QEMACS_PATH=../
-# define the name of your plugin
-LIB=rect_op_plugin.so
-# define the object files it contains
-OBJS=rect_op_plugin.o
+
+RECT_LIB=rect_op_plugin.so
+RECT_OBJS=rect_op_plugin.o
+
+CSCOPE_LIB=cscope_plugin.so
+CSCOPE_OJBS=cscope_plugin.o
 
 INCLUDES=-I$(QEMACS_PATH)
 DEFINES=-DQE_MODULE
-DIST_LIB:=$(HOME)/.qe/$(LIB)
+LIB_INSTALL_PATH:=$(HOME)/.qe/
 CC=gcc
 CFLAGS=-O2 -Wall -g -fPIC $(INCLUDES) $(DEFINES)
 
+TARGETS= $(RECT_LIB) $(CSCOPE_LIB)
+
 # by default, the plugin is copied in ~/.qe/ some that qemacs can load
 # it automatically.
-all: $(DIST_LIB)
+all: $(RECT_LIB) $(CSCOPE_LIB)
 
-$(DIST_LIB): $(LIB)
-	@echo "(INSTALL) $@"
-	@install -s -m 644 $< $@
-
-install: $(DIST_LIB)
-
-$(LIB): $(OBJS) Makefile
+$(RECT_LIB): $(RECT_OBJS) Makefile rect_op_plugin.c
+	$(CC) $(CFLAGS) -c -o $(RECT_OBJS) rect_op_plugin.c
 	@echo "(LINK) $@"
-	@$(CC) -shared -o $@ $(OBJS)
+	@$(CC) -shared -o $@ $(RECT_OBJS)
 
-%.o: %.c
-	@echo "(CC) $<"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+$(CSCOPE_LIB): $(CSCOPE_OBJS) Makefile cscope_plugin.c
+	$(CC) $(CFLAGS) -c -o $(CSCOPE_OJBS) cscope_plugin.c
+	@echo "(LINK) $@"
+	@$(CC) -shared -o $@ $(CSCOPE_OJBS)
 
 clean:
 	rm -f *.o *.so *~
+
+PHONY: install
+install:
+	install -m 644 ${RECT_LIB} ${LIB_INSTALL_PATH}/${RECT_LIB}
+	install -m 644 ${CSCOPE_LIB} ${LIB_INSTALL_PATH}/${CSCOPE_LIB}

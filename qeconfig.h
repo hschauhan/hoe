@@ -68,7 +68,6 @@ CmdDef basic_commands[] = {
           do_changecase_region, 0)
     CMD1( KEY_CTRLX(KEY_CTRL('u')), KEY_NONE, "upcase-region", 
           do_changecase_region, 1)
-
     /* keyboard macros */
     CMD0( KEY_CTRLX('('), KEY_NONE, "start-kbd-macro", do_start_macro)
     CMD0( KEY_CTRLX(')'), KEY_NONE, "end-kbd-macro", do_end_macro)
