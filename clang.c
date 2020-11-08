@@ -24,7 +24,8 @@ static const char c_keywords[] =
 
 /* NOTE: 'var' is added for javascript */
 static const char c_types[] = 
-"|char|double|float|int|long|unsigned|short|signed|void|var|";
+"|char|double|float|int|long|unsigned|short|signed|void|var|"
+"u8|uint8_t|u16|uint16_t|u32|uint32_t|u64|uint64_t|";
 
 static int get_c_keyword(char *buf, int buf_size, unsigned int **pp)
 {
