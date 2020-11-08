@@ -152,6 +152,7 @@ static void cscope_select_file(EditState *s)
     if (index < 0 || index >= cs.entries)
         return;
 
+    put_status(s, "Save %d offset in %s", s->offset, cs.os->b->name);
     if (push_cscope_mark(cs.os->b, cs.os->offset)) {
         put_status(s, "Cscope stack full!");
     }
@@ -375,6 +376,7 @@ void do_cscope_query_and_show(EditState *s)
         qs->active_window = e;
         do_refresh(e);
     } else {
+        put_status(s, "Save %d offset in %s", s->offset, cs.os->b->name);
         push_cscope_mark(s->b, s->offset);
         snprintf(fpath, sizeof(fpath), "%s/%s", cs.symdir, cs.out[0].file);
         do_load_at_line(s, fpath, cs.out[0].line);
@@ -387,7 +389,8 @@ static void do_query_symbol(void *opaque, char *reply)
         if (cs.sym) free(cs.sym);
         cs.sym = strdup(reply);
         free(reply);
-    }
+    } else if (reply == NULL)
+        return;
 
     if (cs.sym == NULL)
         return;
@@ -474,7 +477,9 @@ static void do_cscope_pop_mark(EditState *s)
         return;
     }
 
-    csm.offset= csm.offset;
+    put_status(s, "Pop %d offset in %s", csm.offset, csm.b->name);
+
+    cs.os->offset = csm.offset;
     switch_to_buffer(cs.os, csm.b);
 }
 
@@ -562,9 +567,9 @@ static CmdDef cscope_global_commands[] = {
     CMD1( KEY_F2, KEY_NONE, "cscope-find-symbol", do_cscope_operation, 0)
     CMD1( KEY_F3, KEY_NONE, "cscope-find-global-definition",
          do_cscope_operation, 1)
-    CMD1( KEY_F4, KEY_NONE, "cscope-find-function-calling-this-function",
+    CMD1( KEY_F4, KEY_NONE, "cscope-find-function-called-by-this-function",
          do_cscope_operation, 2)
-    CMD1( KEY_F5, KEY_NONE, "cscope-find-function-called-by-this-function",
+    CMD1( KEY_F5, KEY_NONE, "cscope-find-function-calling-this-function",
          do_cscope_operation, 3)
     CMD1( KEY_F6, KEY_NONE, "cscope-find-string",
          do_cscope_operation, 4)
