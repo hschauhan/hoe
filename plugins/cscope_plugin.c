@@ -29,13 +29,25 @@ typedef struct CscopeOutput {
     char context[1024];
 } CscopeOutput;
 
-typedef struct CscopeContext {
+typedef struct CscopeMark {
+    EditBuffer *b;
+    int offset;
+} CscopeMark;
+
+typedef struct CscopeMarkStack {
+#define CSCOPE_STACK_SZ		1024
+    int index;
+    CscopeMark stack[1024];
+} CscopeMarkStack;
+
+typedef struct CscopeState {
     EditState *os;
     int op;
     char *sym;
     char *symdir;
     CscopeOutput *out;
     int entries;
+    CscopeMarkStack cstack;
 } CscopeState;
 
 int split_horizontal = 1;
@@ -47,6 +59,42 @@ CscopeState cs;
 #define OUTBUF_WIN_SZ	1024
 
 void do_load_at_line(EditState *s, const char *filename, int line);
+
+static int push_cscope_mark(EditBuffer *b, int offset)
+{
+    if (cs.cstack.index >= CSCOPE_STACK_SZ)
+        return -1;
+
+    cs.cstack.index++;
+    cs.cstack.stack[cs.cstack.index].b = b;
+    cs.cstack.stack[cs.cstack.index].offset = offset;
+
+    return 0;
+}
+
+static int pop_cscope_mark(CscopeMark *m)
+{
+    if (cs.cstack.index < 0)
+        return -1;
+
+    m->b = cs.cstack.stack[cs.cstack.index].b;
+    m->offset = cs.cstack.stack[cs.cstack.index].offset;
+    cs.cstack.index--;
+
+    return 0;
+}
+
+static void free_previous_allocs(void)
+{
+    if (cs.out) {
+        free(cs.out);
+        cs.out = NULL;
+    }
+    if (cs.sym) {
+        free(cs.sym);
+        cs.sym = NULL;
+    }
+}
 
 static char cscope_symbol_file_exists(char *dir)
 {
@@ -103,6 +151,10 @@ static void cscope_select_file(EditState *s)
     index = list_get_pos(s);
     if (index < 0 || index >= cs.entries)
         return;
+
+    if (push_cscope_mark(cs.os->b, cs.os->offset)) {
+        put_status(s, "Cscope stack full!");
+    }
 
     snprintf(fpath, sizeof(fpath), "%s/%s", cs.symdir, cs.out[index].file);
     do_load_at_line(cs.os, fpath, cs.out[index].line);
@@ -323,6 +375,7 @@ void do_cscope_query_and_show(EditState *s)
         qs->active_window = e;
         do_refresh(e);
     } else {
+        push_cscope_mark(s->b, s->offset);
         snprintf(fpath, sizeof(fpath), "%s/%s", cs.symdir, cs.out[0].file);
         do_load_at_line(s, fpath, cs.out[0].line);
     }
@@ -332,7 +385,8 @@ static void do_query_symbol(void *opaque, char *reply)
 {
     if (reply && strlen(reply) != 0) {
         if (cs.sym) free(cs.sym);
-        cs.sym = reply;
+        cs.sym = strdup(reply);
+        free(reply);
     }
 
     if (cs.sym == NULL)
@@ -349,6 +403,8 @@ static void do_cscope_operation(EditState *s, int op)
     cs.os = s;
     char current_dir[1024], *c;
     char *cdir = getcwd(current_dir, sizeof(current_dir));
+    
+    free_previous_allocs();
 
     if (cs.symdir == NULL) {
         c = search_symbol_file(cdir);
@@ -366,6 +422,7 @@ static void do_cscope_operation(EditState *s, int op)
     cs.sym = do_read_word_at_offset(s);
     if (cs.sym == NULL || (cs.sym && strlen(cs.sym) == 0)) {
         memset(suggestion, 0, sizeof(suggestion));
+        if (cs.sym) free(cs.sym);
         cs.sym = NULL;
     } else {
         snprintf(suggestion, sizeof(suggestion), "[default %s]", cs.sym);
@@ -407,6 +464,18 @@ static void do_cscope_operation(EditState *s, int op)
 
     minibuffer_edit(NULL, status, NULL, NULL,
                     do_query_symbol, (void *)s);
+}
+
+static void do_cscope_pop_mark(EditState *s)
+{
+    CscopeMark csm;
+    if (pop_cscope_mark(&csm)) {
+        put_status(s, "Cscope stack is empty");
+        return;
+    }
+
+    csm.offset= csm.offset;
+    switch_to_buffer(cs.os, csm.b);
 }
 
 static void do_query_symbol_directory(void *opaque, char *reply)
@@ -483,7 +552,7 @@ static void do_cscope_set_symbol_directory(EditState *s)
 
 /* specific bufed commands */
 static CmdDef cscope_mode_commands[] = {
-    CMD0( KEY_RET, KEY_RIGHT, "cscope-select", cscope_select_file)
+    CMD0( KEY_RET, ' ', "cscope-select", cscope_select_file)
     CMD1( KEY_CTRL('g'), KEY_NONE, "delete-window", do_delete_window, 0)
     CMD_DEF_END,
 };
@@ -505,6 +574,8 @@ static CmdDef cscope_global_commands[] = {
          do_cscope_operation, 8)
     CMD1( KEY_F9, KEY_NONE, "cscope-find-assignment",
          do_cscope_operation, 9)
+    CMD0( KEY_NONE, KEY_NONE, "cscope-pop-mark",
+         do_cscope_pop_mark)
     CMD_DEF_END,
 };
 
@@ -517,15 +588,6 @@ static int cscope_mode_init(EditState *s, ModeSavedData *saved_data)
 static void cscope_mode_close(EditState *s)
 {
     list_mode.mode_close(s);
-    if (cs.out) {
-        free(cs.out);
-    }
-    if (cs.sym) {
-        free(cs.sym);
-    }
-    if (cs.symdir) {
-        free(cs.symdir);
-    }
 }
 
 static int cscope_mode_probe(ModeProbeData *p)
@@ -548,6 +610,8 @@ static int cscope_mode_probe(ModeProbeData *p)
 
 static int cscope_init(void)
 {
+    cs.cstack.index = -1;
+
     /* inherit from list mode */
     memcpy(&cscope_mode, &list_mode, sizeof(ModeDef));
     cscope_mode.name = "cscope";
