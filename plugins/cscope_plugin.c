@@ -327,6 +327,61 @@ CscopeOutput *cscope_parse_output(char *output, int nr_entries)
     return out;
 }
 
+/* colorization states */
+enum {
+    CS_FILE = 1,
+    CS_LINE,
+    CS_SYM,
+    CS_CONTEXT,
+};
+
+void cscope_colorize_line(unsigned int *buf, int len,
+                          int *colorize_state_ptr, int state_only)
+{
+    int state = CS_FILE;
+    unsigned int *p, *p1;
+    int delim = ' ';
+
+    if (*buf == '\n')
+        return;
+
+    p1 = p = buf;
+
+    for (;;) {
+        while (*++p == delim) continue;
+        p1 = p;
+        while (*p != delim) {
+            p++;
+        }
+        switch (state) {
+        case CS_FILE:
+            set_color(p1, p - p1, QE_STYLE_FUNCTION);
+            state++;
+            break;
+
+        case CS_SYM:
+            set_color(p1, p - p1, QE_STYLE_TYPE);
+            state++;
+            delim = '\n';
+            break;
+
+        case CS_LINE:
+            set_color(p1, p - p1, QE_STYLE_STRING);
+            state++;
+            break;
+
+        case CS_CONTEXT:
+            set_color(p1, p - p1, QE_STYLE_PREPROCESS);
+            state++;
+            goto out;
+            break;
+        }
+    }
+
+out:
+    return;
+}
+
 /* show a list of buffers */
 void cscope_query_and_show(EditState *s)
 {
@@ -362,7 +417,7 @@ void cscope_query_and_show(EditState *s)
     eb_delete(b, 0, b->total_size);
     for (cn = 0; cn < ln; cn++) {
         x = snprintf(fpath, sizeof(fpath),
-                     "%-32s [%6d] %-24s %s\n",
+                     "%-32s [%d] %-24s %s\n",
                      cs.out[cn].file, cs.out[cn].line,
                      cs.out[cn].sym, cs.out[cn].context);
         eb_write(b, y, (unsigned char *)fpath, x);
@@ -382,7 +437,7 @@ void cscope_query_and_show(EditState *s)
         } else {
             y = (s->y2 + s->y1) / 2;
             e = edit_new(b, s->x1, y,
-                         s->x2 - s->x1, s->y2 - y, 
+                         s->x2 - s->x1, s->y2 - y,
                          WF_MODELINE | (s->flags & WF_RSEPARATOR));
             s->y2 = y;
         }
@@ -422,7 +477,7 @@ static void do_cscope_operation(EditState *s, int op)
     cs.os = s;
     char current_dir[1024], *c;
     char *cdir = getcwd(current_dir, sizeof(current_dir));
-    
+
     cscope_free_previous_allocs();
 
     if (cs.symdir == NULL) {
@@ -603,6 +658,7 @@ static CmdDef cscope_global_commands[] = {
 static int cscope_mode_init(EditState *s, ModeSavedData *saved_data)
 {
     list_mode.mode_init(s, saved_data);
+    set_colorize_func(s, cscope_colorize_line);
     return 0;
 }
 
