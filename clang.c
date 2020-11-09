@@ -545,8 +545,8 @@ static CmdDef c_commands[] = {
     CMD0( KEY_NONE, KEY_NONE, "c-indent-region", do_c_indent_region)
     CMD1( ';', KEY_NONE, "c-electric-semi&comma", do_c_electric, ';')
     CMD1( ':', KEY_NONE, "c-electric-colon", do_c_electric, ':')
-    CMD1( '{', KEY_NONE, "c-electric-obrace", do_c_electric, '{')
-    CMD1( '}', KEY_NONE, "c-electric-cbrace", do_c_electric, '}')
+    CMD1( KEY_NONE, KEY_NONE, "c-electric-obrace", do_c_electric, '{')
+    CMD1( KEY_NONE, KEY_NONE, "c-electric-cbrace", do_c_electric, '}')
     CMD_DEF_END,
 };
 
