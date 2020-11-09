@@ -529,6 +529,7 @@ int eb_goto_char(EditBuffer *b, int pos);
 int eb_get_char_offset(EditBuffer *b, int offset);
 void do_undo(struct EditState *s);
 char *do_read_word_at_offset(struct EditState *s);
+void do_match_parenthesis(struct EditState *s);
 
 int raw_load_buffer1(EditBuffer *b, FILE *f, int offset);
 int save_buffer(EditBuffer *b);

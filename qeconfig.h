@@ -17,6 +17,7 @@ CmdDef basic_commands[] = {
     CMD0( KEY_ESC1(2), KEY_NONE, "overwrite-mode", do_insert)
     CMD0( KEY_CTRL('d'), KEY_DELETE, "delete-char", do_delete_char)
     CMD0( 127, KEY_NONE, "backward-delete-char", do_backspace)
+    CMD0( KEY_META('%'), KEY_NONE, "match-parenthesis", do_match_parenthesis)
     CMD1( KEY_META(KEY_BACKSPACE) , KEY_NONE, 
           "backward-delete-word", do_delete_word, -1)
     CMD1( KEY_META('d') , KEY_NONE, "delete-word", do_delete_word, 1)

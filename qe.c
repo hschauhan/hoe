@@ -741,6 +741,70 @@ void do_delete_trailing_whitespace(EditState *s)
     put_status(s, status);
 }
 
+/* XXX: can do a little better */
+void do_match_parenthesis(EditState *s)
+{
+    int offset1, initial_offset, c;
+    int this_paren, other_paren;
+    unsigned char r;
+    typedef int (*_eb_getchar)(EditBuffer *s, int offset, int *ptr);
+    _eb_getchar get_char;
+    int nest = 1, fw = 0;
+
+    initial_offset = s->offset;
+
+    eb_read(s->b, s->offset, &r, sizeof(r));
+    this_paren = (int)r;
+    if (this_paren == '{' || this_paren == '(' || this_paren == '[') {
+        if (this_paren == '(') {
+            other_paren = this_paren + 1;
+        } else {
+            other_paren = this_paren + 2;
+        }
+        get_char = eb_nextc;
+        s->offset++;
+        fw = 1;
+    } else if (this_paren == '}' || this_paren == ')' || this_paren == ']') {
+        if (this_paren == ')') {
+            other_paren = this_paren - 1;
+        } else {
+            other_paren = this_paren - 2;
+        }
+        get_char = eb_prevc;
+    } else
+        /* if its not a parenthesis nothing to do */
+        return;
+
+
+    for (;;) {
+        c = get_char(s->b, s->offset, &offset1);
+        if (c == this_paren) {
+            nest++;
+        } else if (c == other_paren) {
+            nest--;
+            if (nest <= 0) {
+                if (nest == 0 && !fw)
+                    s->offset = offset1;
+                else if (nest < 0)
+                    s->offset = initial_offset;
+                break;
+            }
+        }
+        if (offset1 <= 0 || offset1 >= s->b->total_size) {
+            s->offset = initial_offset;
+            nest = -1;
+            break;
+        }
+        s->offset = offset1;
+    }
+
+    if (nest == 0) {
+        do_refresh(s);
+    } else {
+        put_status(s, "No matching parenthesis!");
+    }
+}
+
 void do_backspace(EditState *s)
 {
     int offset1;
