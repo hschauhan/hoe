@@ -60,7 +60,7 @@ CscopeState cs;
 
 void do_load_at_line(EditState *s, const char *filename, int line);
 
-static int push_cscope_mark(EditBuffer *b, int offset)
+static int cscope_push_mark(EditBuffer *b, int offset)
 {
     if (cs.cstack.index >= CSCOPE_STACK_SZ)
         return -1;
@@ -72,7 +72,7 @@ static int push_cscope_mark(EditBuffer *b, int offset)
     return 0;
 }
 
-static int pop_cscope_mark(CscopeMark *m)
+static int cscope_pop_mark(CscopeMark *m)
 {
     if (cs.cstack.index < 0)
         return -1;
@@ -84,7 +84,7 @@ static int pop_cscope_mark(CscopeMark *m)
     return 0;
 }
 
-static void free_previous_allocs(void)
+static void cscope_free_previous_allocs(void)
 {
     if (cs.out) {
         free(cs.out);
@@ -117,7 +117,7 @@ out:
     return 0;
 }
 
-char *get_home_dir(void)
+char *cscope_get_home_dir(void)
 {
     char *homedir = NULL;
 
@@ -128,7 +128,7 @@ char *get_home_dir(void)
     return homedir;
 }
 
-static char *search_symbol_file(char *dir)
+static char *cscope_search_symbol_file(char *dir)
 {
     char *nd;
     //char *homedir = get_home_dir();
@@ -137,7 +137,7 @@ static char *search_symbol_file(char *dir)
         nd = dirname(dir);
         if (strlen(nd) == strlen("/"))
             return NULL;
-        return search_symbol_file(nd);
+        return cscope_search_symbol_file(nd);
     }
 
     return dir;
@@ -153,7 +153,7 @@ static void cscope_select_file(EditState *s)
         return;
 
     put_status(s, "Save %d offset in %s", s->offset, cs.os->b->name);
-    if (push_cscope_mark(cs.os->b, cs.os->offset)) {
+    if (cscope_push_mark(cs.os->b, cs.os->offset)) {
         put_status(s, "Cscope stack full!");
     }
 
@@ -161,9 +161,9 @@ static void cscope_select_file(EditState *s)
     do_load_at_line(cs.os, fpath, cs.out[index].line);
 }
 
-int do_cscope_query(char *symdir, int opc, char *sym, char **response, int *len)
+int cscope_query(char *symdir, int opc, char *sym, char **response, int *len)
 {
-    char cs_command[128];
+    char cs_command[2048];
     FILE *co;
     int rc;
     int tlen, nr_reads = 1;
@@ -223,7 +223,7 @@ out:
     return 0;
 }
 
-void parse_cscope_line(char *line, CscopeOutput *out)
+void cscope_parse_line(char *line, CscopeOutput *out)
 {
     int state = 0;
     int i = 0;
@@ -307,7 +307,7 @@ void parse_cscope_line(char *line, CscopeOutput *out)
     return;
 }
 
-CscopeOutput *parse_cscope_output(char *output, int nr_entries)
+CscopeOutput *cscope_parse_output(char *output, int nr_entries)
 {
     int i = 0;
     char *tok;
@@ -317,7 +317,7 @@ CscopeOutput *parse_cscope_output(char *output, int nr_entries)
 
     tok = strtok(output, "\n");
     while (tok != NULL) {
-        parse_cscope_line(tok, &out[i]);
+        cscope_parse_line(tok, &out[i]);
         i++;
         tok = strtok(NULL, "\n");
     }
@@ -326,7 +326,7 @@ CscopeOutput *parse_cscope_output(char *output, int nr_entries)
 }
 
 /* show a list of buffers */
-void do_cscope_query_and_show(EditState *s)
+void cscope_query_and_show(EditState *s)
 {
     QEmacsState *qs = s->qe_state;
     EditBuffer *b;
@@ -335,7 +335,7 @@ void do_cscope_query_and_show(EditState *s)
     char *cs_resp;
     char fpath[2048];
 
-    if (do_cscope_query(cs.symdir, cs.op, cs.sym, &cs_resp, &rlen) < 0) {
+    if (cscope_query(cs.symdir, cs.op, cs.sym, &cs_resp, &rlen) < 0) {
         put_status(s, "cscope query failed");
         return;
     }
@@ -352,7 +352,7 @@ void do_cscope_query_and_show(EditState *s)
     eb_write(b, 0, (unsigned char *)cs_resp, rlen);
     eb_get_pos(b, &ln, &cn, b->total_size);
     cs.entries = ln;
-    cs.out = parse_cscope_output(cs_resp, ln);
+    cs.out = cscope_parse_output(cs_resp, ln);
     (void)cn;
 
     if (ln > 1) {
@@ -377,13 +377,13 @@ void do_cscope_query_and_show(EditState *s)
         do_refresh(e);
     } else {
         put_status(s, "Save %d offset in %s", s->offset, cs.os->b->name);
-        push_cscope_mark(s->b, s->offset);
+        cscope_push_mark(s->b, s->offset);
         snprintf(fpath, sizeof(fpath), "%s/%s", cs.symdir, cs.out[0].file);
         do_load_at_line(s, fpath, cs.out[0].line);
     }
 }
 
-static void do_query_symbol(void *opaque, char *reply)
+static void cscope_query_symbol(void *opaque, char *reply)
 {
     if (reply && strlen(reply) != 0) {
         if (cs.sym) free(cs.sym);
@@ -395,7 +395,7 @@ static void do_query_symbol(void *opaque, char *reply)
     if (cs.sym == NULL)
         return;
 
-    do_cscope_query_and_show(cs.os);
+    cscope_query_and_show(cs.os);
 }
 
 static void do_cscope_operation(EditState *s, int op)
@@ -407,10 +407,10 @@ static void do_cscope_operation(EditState *s, int op)
     char current_dir[1024], *c;
     char *cdir = getcwd(current_dir, sizeof(current_dir));
     
-    free_previous_allocs();
+    cscope_free_previous_allocs();
 
     if (cs.symdir == NULL) {
-        c = search_symbol_file(cdir);
+        c = cscope_search_symbol_file(cdir);
         if (c)
             cs.symdir = strdup(c);
     }
@@ -466,13 +466,13 @@ static void do_cscope_operation(EditState *s, int op)
     }
 
     minibuffer_edit(NULL, status, NULL, NULL,
-                    do_query_symbol, (void *)s);
+                    cscope_query_symbol, (void *)s);
 }
 
 static void do_cscope_pop_mark(EditState *s)
 {
     CscopeMark csm;
-    if (pop_cscope_mark(&csm)) {
+    if (cscope_pop_mark(&csm)) {
         put_status(s, "Cscope stack is empty");
         return;
     }
@@ -500,7 +500,7 @@ static void do_query_symbol_directory(void *opaque, char *reply)
         return;
 
     if (*reply == '~') {
-        homedir = get_home_dir();
+        homedir = cscope_get_home_dir();
 
         reply++;
 
