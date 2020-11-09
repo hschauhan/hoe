@@ -621,9 +621,13 @@ out:
 
 static void do_cscope_set_symbol_directory(EditState *s)
 {
+    char current_dir[1024];
+    char *cdir = getcwd(current_dir, sizeof(current_dir));
+
     qe_ungrab_keys();
-    minibuffer_edit(NULL, "Symbol File Directory: ",
-                    NULL, NULL, do_query_symbol_directory, (void *)s);
+    minibuffer_edit(cdir, "Symbol File Directory: ",
+                    NULL, file_completion,
+                    do_query_symbol_directory, (void *)s);
 }
 
 /* specific bufed commands */

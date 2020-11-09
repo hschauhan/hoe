@@ -21,10 +21,10 @@
 
     /* coloring styles */
     STYLE_DEF(QE_STYLE_HIGHLIGHT, "highlight",
-              QERGB(0x00, 0x00, 0x00), QERGB(0xf8, 0xd8, 0xb0),
+              QERGB(0xf8, 0xd8, 0xb0), QERGB(0x00, 0x00, 0x00),
               0, 0)
     STYLE_DEF(QE_STYLE_SELECTION, "selection",
-              QERGB(0xff, 0xff, 0xff), QERGB(0x00, 0x00, 0xff),
+              QERGB(0x00, 0x00, 0xff), QERGB(0xff, 0xff, 0xff),
               0, 0)
     STYLE_DEF(QE_STYLE_COMMENT, "comment",
               QERGB(0xf8, 0x44, 0x00), COLOR_TRANSPARENT,
