@@ -22,6 +22,8 @@
 #include <libgen.h>
 #include <unistd.h>
 
+#define PRETTY_WRITE 1
+
 typedef struct CscopeOutput {
     char file[1024];
     int line;
@@ -354,6 +356,20 @@ void cscope_query_and_show(EditState *s)
     cs.entries = ln;
     cs.out = cscope_parse_output(cs_resp, ln);
     (void)cn;
+
+#if PRETTY_WRITE
+    y = 0; /* offset in buffer */
+    eb_delete(b, 0, b->total_size);
+    for (cn = 0; cn < ln; cn++) {
+        x = snprintf(fpath, sizeof(fpath),
+                     "%-32s [%6d] %-24s %s\n",
+                     cs.out[cn].file, cs.out[cn].line,
+                     cs.out[cn].sym, cs.out[cn].context);
+        eb_write(b, y, (unsigned char *)fpath, x);
+        y += x;
+        memset(fpath, 0, sizeof(fpath));
+    }
+#endif
 
     if (ln > 1) {
         if (!split_horizontal) {
