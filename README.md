@@ -2,7 +2,7 @@
 
 # HOE: Himanshu' Own Emacs
 
-##Definition
+## Definition
 HOE: A tool with a thin flat blade on a long handle used especially for cultivating,
 weeding, or loosening the earth around plants.
 
