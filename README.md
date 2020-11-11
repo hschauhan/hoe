@@ -14,6 +14,19 @@ Hoe helps in cultivating, weeding and nurturing the software code. :)
 Hoe is a clone of Qemacs but diverges in philosophy. Qemacs does a lot of things that
 an editor, IMHO, should not do. So Hoe is here only to edit code.
 
+Hoe is based on v0.3.3 of Qemacs. At this version there is no active development going on with Qemacs.
+Hoe strips off the following from Qemacs:
+* Video player
+* X and Windows support (Only TTY)
+* HTML, CSS & Docbook
+* html2png
+* Unicode
+
+So, Hoe is a bare-minimum emacs-like editor. But adds following capabilities to stripped Qemacs:
+* Cscope support just like xcscope.el in Emacs (Same key bindings if config.eg is used)
+* Rectangular operations like insert/delete are added.
+* Command to delete trailing white spaces
+
 # Compiling
 There is nothing to configure on Hoe. Just do "make".
 
