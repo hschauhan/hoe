@@ -36,6 +36,7 @@ OBJS=qe.o charset.o buffer.o \
      unix.o tty.o unihex.o clang.o latex-mode.o xml.o \
      bufed.o shell.o dired.o unicode_join.o charsetmore.o \
      charset_table.o indic.o qfribidi.o unihex.o \
+     cscope.o rect_operations.o \
      qeend.o
 
 all: $(TARGETS) plugins
