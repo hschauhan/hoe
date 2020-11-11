@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.com/hschauhan/hoe.svg?branch=main)](https://travis-ci.com/hschauhan/hoe)
 
-# Introduction
+# HOE: Himanshu' Own Emacs
 
-Hoe: Himanshu's Own Emacs is a clone of Qemacs but diverges in philosophy. Qemacs does a lot of things that
+Hoe is a clone of Qemacs but diverges in philosophy. Qemacs does a lot of things that
 an editor, IMHO, should not do. So Hoe is here only to edit code.
 
 # Compiling
