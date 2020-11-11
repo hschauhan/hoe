@@ -17,6 +17,7 @@ CFLAGS+=-march=i386 -falign-functions=0
 endif
 endif
 DEFINES=-DHAVE_QE_CONFIG_H
+APP_NAME=hoe
 
 ########################################################
 # do not modify after this
@@ -28,7 +29,7 @@ LDFLAGS+=-Wl,-E
 endif
 LIBS+=-lm
 
-TARGETS+=qe
+TARGETS+=$(APP_NAME)
 
 OBJS=qe.o charset.o buffer.o \
      input.o display.o util.o hex.o list.o cutils.o \
@@ -44,15 +45,9 @@ plugins:
 	@echo "(MAKE) plugins"
 	@make -C plugins all
 
-qe_g: $(OBJS) $(DEP_LIBS)
+$(APP_NAME): $(OBJS) $(DEP_LIBS)
 	@echo "(LINK) $@"
 	@$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
-
-qe: qe_g
-	@cp $< $@
-	@echo "(STRIP) $@"
-	@$(STRIP) $@
-	@ls -l $@
 
 qe.o: qe.c qe.h qfribidi.h
 
@@ -71,18 +66,10 @@ qfribidi.o: qfribidi.c qfribidi.h
 clean:
 	make -C plugins clean
 	rm -f *.o *~ TAGS gmon.out core \
-           qe qe_g qe.exe qfribidi kmaptoqe ligtoqe \
-           fbftoqe fbffonts.c
+           $(APP_NAME) qfribidi
 
-distclean: clean
-	rm -f config.h config.mak
-
-install: qe qe.1 kmaps ligatures
-	install -m 755 qe $(prefix)/bin/qemacs
-	ln -sf qemacs $(prefix)/bin/qe
-	mkdir -p $(prefix)/share/qe
-	install kmaps ligatures $(prefix)/share/qe
-	install qe.1 $(prefix)/man/man1
+install: $(APP_NAME)
+	install -s -m 755 $(APP_NAME) $(prefix)/bin/$(APP_NAME)
 
 plugin_install:
 	make -C plugins install
@@ -96,28 +83,14 @@ force:
 # tar archive for distribution
 #
 
-FILES=Changelog COPYING README TODO qe.1 config.eg \
-Makefile qe.tcc qemacs.spec \
-hex.c charset.c qe.c qe.h tty.c \
-html.c indic.c unicode_join.c input.c qeconfig.h \
-qeend.c unihex.c arabic.c kmaptoqe.c util.c \
-bufed.c qestyles.h buffer.c ligtoqe.c \
+FILES=Changelog COPYING README qe.1 config.eg Makefile \
+hex.c charset.c qe.c qe.h tty.c indic.c unicode_join.c input.c \
+qeconfig.h qeend.c unihex.c util.c bufed.c qestyles.h buffer.c \
 qfribidi.c clang.c latex-mode.c xml.c dired.c list.c qfribidi.h \
-charsetmore.c charset_table.c cptoqe.c \
-libfbf.c fbfrender.c cfb.c fbftoqe.c libfbf.h fbfrender.h cfb.h \
-display.c display.h mpeg.c shell.c \
-docbook.c unifont.lig kmaps xterm-146-dw-patch \
-ligatures \
-image.c VERSION \
+charsetmore.c charset_table.c display.c display.h shell.c VERSION \
 cutils.c cutils.h unix.c
 
-# qhtml library
-FILES+=libqhtml/Makefile libqhtml/css.c libqhtml/cssid.h \
-libqhtml/cssparse.c libqhtml/xmlparse.c libqhtml/htmlent.h \
-libqhtml/css.h libqhtml/csstoqe.c \
-libqhtml/docbook.css libqhtml/html.css 
-
-FILE=qemacs-$(shell cat VERSION)
+FILE=$(APP_NAME)-$(shell cat VERSION)
 
 tar:
 	rm -rf /tmp/$(FILE)
