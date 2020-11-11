@@ -6,6 +6,11 @@
 <b>HOE: A tool with a thin flat blade on a long handle used especially for cultivating,
 weeding, or loosening the earth around plants.</b>
 
+![Hoe](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Hoe%2C_toothed_Zierbena_CoA.svg/291px-Hoe%2C_toothed_Zierbena_CoA.svg.png)
+
+Hoe helps in cultivating, weeding and nurturing the software code. :)
+
+## Software
 Hoe is a clone of Qemacs but diverges in philosophy. Qemacs does a lot of things that
 an editor, IMHO, should not do. So Hoe is here only to edit code.
 
