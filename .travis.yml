@@ -1,8 +1,6 @@
 language: c
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libx11-dev libxext-dev x11proto-video-dev libxv-dev
   - mkdir -p ~/.qe/
-script: ./configure && make && make -C plugins
+script: make && make -C plugins
 os:
   - linux
