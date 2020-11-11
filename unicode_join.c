@@ -1,5 +1,5 @@
 /*
- * Unicode joining algorithms for QEmacs.  
+ * Unicode joining algorithms for QEmacs.
  *
  * Copyright (c) 2000 Fabrice Bellard.
  *
@@ -45,7 +45,7 @@ static unsigned short *read_array_be16(FILE *f, int n)
     int i;
 
     tab = malloc(n * sizeof(unsigned short));
-    if (!tab) 
+    if (!tab)
         return NULL;
     for(i=0;i<n;i++) {
         tab[i] = uni_get_be16(f);
@@ -66,7 +66,7 @@ void load_ligatures(void)
     if (!f)
         return;
     if (fread(buf, 1, 4, f) != 4 ||
-        memcmp(buf, "liga", 4) != 0) 
+        memcmp(buf, "liga", 4) != 0)
         goto fail;
 
     subst1_count = uni_get_be16(f);
@@ -74,10 +74,10 @@ void load_ligatures(void)
     long_count = uni_get_be16(f);
 
     subst1 = read_array_be16(f, subst1_count * 2);
-    if (!subst1) 
+    if (!subst1)
         goto fail;
     ligature2 = read_array_be16(f, ligature2_count * 3);
-    if (!ligature2) 
+    if (!ligature2)
         goto fail;
     ligature_long = read_array_be16(f, long_count);
     if (!ligature_long)
@@ -116,7 +116,7 @@ static int find_ligature(int l1, int l2)
 
 /* apply all the ligature rules in logical order. Always return a
    smaller buffer */
-static int unicode_ligature(unsigned int *buf_out, 
+static int unicode_ligature(unsigned int *buf_out,
                             unsigned int *pos_L_to_V,
                             int len)
 {
@@ -124,7 +124,7 @@ static int unicode_ligature(unsigned int *buf_out,
     unsigned int *q;
     const unsigned short *lig;
     unsigned int buf[len];
-    
+
     memcpy(buf, buf_out, len * sizeof(int));
 
     q = buf_out;
@@ -203,8 +203,8 @@ static int unicode_classify(unsigned int *buf, int len)
             continue;
         mask |= UNICODE_NONASCII;
         if (c >= 0x2000) /* fast test for non handled scripts */
-            continue; 
-        if (c >= 0x600 && c <= 0x6ff) 
+            continue;
+        if (c >= 0x600 && c <= 0x6ff)
             mask |= UNICODE_ARABIC;
         else if (c >= 0x900 && c <= 0x97f)
             mask |= UNICODE_INDIC;
@@ -222,7 +222,7 @@ static void compose_char_to_glyph(unsigned int *ctog, int len, unsigned *ctog1)
 static void bidi_reverse_buf(unsigned int *str, int len)
 {
     int i, len2 = len / 2;
-    
+
     for (i = 0; i < len2; i++) {
 	unsigned int tmp = str[i];
 	str[i] = fribidi_get_mirror_char(str[len - 1 - i]);
@@ -269,20 +269,12 @@ int unicode_to_glyphs(unsigned int *dst, unsigned int *char_to_glyph_pos,
         for(i=0;i<len;i++)
             ctog[i] = i;
         memcpy(buf, src, len * sizeof(int));
-        
-        /* apply each filter */
-    
-        if (unicode_class & UNICODE_ARABIC) {
-            len = arab_join(buf, ctog1, len);
-            /* not needed for arabjoin */
-            //compose_char_to_glyph(ctog, src_size, ctog1);
-        }
 
         if (unicode_class & UNICODE_INDIC) {
             len = devanagari_log2vis(buf, ctog1, len);
             compose_char_to_glyph(ctog, src_size, ctog1);
         }
-        
+
         len = unicode_ligature(buf, ctog1, len);
         compose_char_to_glyph(ctog, src_size, ctog1);
 
@@ -296,7 +288,7 @@ int unicode_to_glyphs(unsigned int *dst, unsigned int *char_to_glyph_pos,
         if (len > dst_size)
             len = dst_size;
         memcpy(dst, buf, len * sizeof(unsigned int));
-        
+
         if (char_to_glyph_pos) {
             memcpy(char_to_glyph_pos, ctog, src_size * sizeof(unsigned int));
         }

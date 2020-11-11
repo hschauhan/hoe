@@ -2,6 +2,8 @@
 #define CONFIG_QE_PREFIX "/usr/local"
 #define QE_VERSION "0.3.3"
 #define CONFIG_NETWORK 1
+#define CONFIG_X11 0
+#define CONFIG_XV 0
 #define CONFIG_HTML 1
 #define CONFIG_DLL 1
 #define CONFIG_UNICODE_JOIN 1

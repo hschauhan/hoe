@@ -23,14 +23,14 @@
 
 #define MAX_BUF_SIZE    512
 
-EditBuffer *new_shell_buffer(const char *name, 
+EditBuffer *new_shell_buffer(const char *name,
                              const char *path, char **argv, int is_shell);
 static ModeDef latex_mode;
 
 /* TODO: add state handling to allow colorization of elements longer
  * than one line (eg, multi-line functions and strings)
  */
-static void latex_colorize_line(unsigned int *buf, int len, 
+static void latex_colorize_line(unsigned int *buf, int len,
                      int *colorize_state_ptr, int state_only)
 {
     int c, state;
@@ -106,7 +106,7 @@ static void latex_colorize_line(unsigned int *buf, int len,
         case '%':
             p++;
             /* line comment */
-            while (*p != '\n') 
+            while (*p != '\n')
                 p++;
             set_color(p_start, p - p_start, QE_STYLE_COMMENT);
             break;
@@ -224,17 +224,23 @@ static void latex_cmd_run(void *opaque, char *cmd)
     argv[2] = cmd;
     argv[3] = NULL;
 
-    getcwd(cwd, sizeof(cwd));
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        put_status(func->es, "Can't get current working directory.");
+        return;
+    }
 
-	/* get the directory of the open file and change into it
-	 */
+    /* get the directory of the open file and change into it
+    */
     p = strrchr(func->es->b->filename, '/');
     if(p == func->es->b->filename)
         p++;
     len = p - func->es->b->filename + 1;
     wd = (char *)malloc(len);
     pstrcpy(wd, len, func->es->b->filename);
-    chdir(wd);
+    if (chdir(wd) < 0) {
+        put_status(func->es, "Can't change to %s", wd);
+        return;
+    }
     free(wd);
 
     if(func->output_to_buffer) {
@@ -245,7 +251,7 @@ static void latex_cmd_run(void *opaque, char *cmd)
             b->modified = 0;
             do_kill_buffer(func->es, "*LaTeX output*");
         }
-    
+
         /* create new buffer */
         b = new_shell_buffer("*LaTeX output*", "/bin/sh", argv, 0);
         if (b)
@@ -260,7 +266,9 @@ static void latex_cmd_run(void *opaque, char *cmd)
             exit(1);
         }
     }
-	chdir(cwd);
+    if (chdir(cwd) < 0) {
+        put_status(func->es, "Failed to change directory to %s", cwd);
+    }
 }
 
 static void do_latex(EditState *e, const char *cmd)
@@ -302,7 +310,7 @@ static void do_latex(EditState *e, const char *cmd)
                 snprintf(prompt, sizeof(prompt), "%s command: ",
                          latex_funcs[i].name);
                 minibuffer_edit(buf, prompt, &latex_funcs[i].history,
-                                NULL /* completion */, 
+                                NULL /* completion */,
                                 latex_cmd_run, (void *)&latex_funcs[i]);
             } else {
                 latex_cmd_run((void *)&latex_funcs[i], buf);

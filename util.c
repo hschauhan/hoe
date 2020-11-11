@@ -17,6 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "qe.h"
+#include "assert.h"
 #include <dirent.h>
 
 #ifdef WIN32
@@ -227,7 +228,7 @@ void canonize_absolute_path(char *buf, int buf_size, const char *path1)
 
     if (!is_abs_path(path1)) {
         /* XXX: should call it again */
-        getcwd(path, sizeof(path));
+        assert(getcwd(path, sizeof(path)) != NULL);
 #ifdef WIN32
         path_win_to_unix(path);
 #endif

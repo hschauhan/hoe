@@ -160,8 +160,8 @@ static int run_process(const char *path, char **argv,
             close(i);
         /* open pseudo tty for standard i/o */
         open(tty_name, O_RDWR);
-        dup(0);
-        dup(0);
+        if (dup(0) < 0) exit(-1);
+        if (dup(0) < 0) exit(-1);
 
         setsid();
 
