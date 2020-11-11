@@ -19,6 +19,7 @@
 #include "qe.h"
 #include "qfribidi.h"
 #ifdef CONFIG_DLL
+#define _GNU_SOURCE
 #include <dlfcn.h>
 #endif
 

@@ -1,4 +1,14 @@
-include config.mak
+prefix=/usr/local
+MAKE=make
+CC=gcc
+GCC_MAJOR=3
+HOST_CC=gcc
+AR=ar
+STRIP=strip -s -R .comment -R .note
+CFLAGS=-O2
+LDFLAGS=
+EXTRALIBS=-lm -ldl
+VERSION=0.3.4
 
 CFLAGS:=-fno-strict-aliasing -Wall -g $(CFLAGS)
 # use it for gcc >= 4.7.0
@@ -22,11 +32,9 @@ APP_NAME=hoe
 ########################################################
 # do not modify after this
 
-ifdef CONFIG_DLL
 LIBS+=-ldl
 # export some qemacs symbols
 LDFLAGS+=-Wl,-E
-endif
 LIBS+=-lm
 
 TARGETS+=$(APP_NAME)
@@ -35,7 +43,7 @@ OBJS=qe.o charset.o buffer.o \
      input.o display.o util.o hex.o list.o cutils.o \
      unix.o tty.o unihex.o clang.o latex-mode.o xml.o \
      bufed.o shell.o dired.o unicode_join.o charsetmore.o \
-     charset_table.o indic.o qfribidi.o unihex.o \
+     charset_table.o \
      cscope.o rect_operations.o \
      qeend.o
 
@@ -50,7 +58,7 @@ $(APP_NAME): $(OBJS) $(DEP_LIBS)
 	@echo "(LINK) $@"
 	@$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-qe.o: qe.c qe.h qfribidi.h
+qe.o: qe.c qe.h
 
 charset.o: charset.c qe.h
 
