@@ -53,3 +53,18 @@
     STYLE_DEF(QE_STYLE_CSS, "css",
               QERGB(0x98, 0xf8, 0x98), COLOR_TRANSPARENT,
               0, 0)
+    STYLE_DEF(QE_STYLE_PATCH_HUNK, "patch-hunk",
+              QERGB(0xf8, 0xa0, 0x78), COLOR_TRANSPARENT,
+              0, 0)
+    STYLE_DEF(QE_STYLE_PATCH_INDEX, "patch-index",
+              QERGB(0x00, 0xff, 0xff), COLOR_TRANSPARENT,
+              0, 0)
+    STYLE_DEF(QE_STYLE_PATCH_FILE_META, "patch-file-meta",
+              QERGB(0x00, 0xff, 0xff), COLOR_TRANSPARENT,
+              0, 0)
+    STYLE_DEF(QE_STYLE_PATCH_ADDITION, "patch-addition",
+              QERGB(0x00, 0x80, 0x00), COLOR_TRANSPARENT,
+              0, 0)
+    STYLE_DEF(QE_STYLE_PATCH_DELETION, "patch-deletion",
+              QERGB(0xff, 0x00, 0x00), COLOR_TRANSPARENT,
+              0, 0)

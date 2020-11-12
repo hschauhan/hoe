@@ -43,7 +43,7 @@ OBJS=qe.o charset.o buffer.o \
      input.o display.o util.o hex.o list.o cutils.o \
      unix.o tty.o unihex.o clang.o latex-mode.o xml.o \
      bufed.o shell.o dired.o unicode_join.o charsetmore.o \
-     charset_table.o \
+     charset_table.o patch-mode.o \
      cscope.o rect_operations.o \
      qeend.o
 
