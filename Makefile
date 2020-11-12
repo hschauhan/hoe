@@ -39,13 +39,9 @@ LIBS+=-lm
 
 TARGETS+=$(APP_NAME)
 
-OBJS=qe.o charset.o buffer.o \
-     input.o display.o util.o hex.o list.o cutils.o \
-     unix.o tty.o unihex.o clang.o latex-mode.o xml.o \
-     bufed.o shell.o dired.o unicode_join.o charsetmore.o \
-     charset_table.o patch-mode.o \
-     cscope.o rect_operations.o \
-     qeend.o
+OBJS=qe.o charset.o buffer.o input.o display.o util.o hex.o list.o cutils.o \
+     unix.o tty.o unihex.o clang.o latex-mode.o xml.o bufed.o shell.o dired.o \
+     unicode_join.o patch-mode.o cscope.o rect_operations.o qeend.o
 
 all: $(TARGETS) plugins
 
@@ -58,13 +54,13 @@ $(APP_NAME): $(OBJS) $(DEP_LIBS)
 	@echo "(LINK) $@"
 	@$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-qe.o: qe.c qe.h
+qe.o: qe.c qe.h qestyles.h
 
-charset.o: charset.c qe.h
+charset.o: charset.c qe.h qestyles.h
 
-buffer.o: buffer.c qe.h
+buffer.o: buffer.c qe.h qestyles.h
 
-tty.o: tty.c qe.h
+tty.o: tty.c qe.h qestyles.h
 
 qfribidi.o: qfribidi.c qfribidi.h
 
@@ -92,12 +88,11 @@ force:
 # tar archive for distribution
 #
 
-FILES=Changelog COPYING README qe.1 config.eg Makefile \
-hex.c charset.c qe.c qe.h tty.c indic.c unicode_join.c input.c \
+FILES=Changelog COPYING README.md config.eg Makefile \
+hex.c charset.c qe.c qe.h tty.c unicode_join.c input.c \
 qeconfig.h qeend.c unihex.c util.c bufed.c qestyles.h buffer.c \
 qfribidi.c clang.c latex-mode.c xml.c dired.c list.c qfribidi.h \
-charsetmore.c charset_table.c display.c display.h shell.c VERSION \
-cutils.c cutils.h unix.c
+display.c display.h shell.c VERSION cutils.c cutils.h unix.c
 
 FILE=$(APP_NAME)-$(shell cat VERSION)
 
