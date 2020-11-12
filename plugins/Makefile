@@ -14,7 +14,7 @@ OBJS=my_plugin.o
 
 INCLUDES=-I$(QEMACS_PATH)
 DEFINES=-DQE_MODULE
-DIST_LIB:=$(HOME)/.qe/$(LIB)
+DIST_LIB:=$(HOME)/.hoe/$(LIB)
 CC=gcc
 CFLAGS=-O2 -Wall -g -fPIC $(INCLUDES) $(DEFINES)
 
