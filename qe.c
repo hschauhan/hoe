@@ -32,6 +32,7 @@ typedef struct HistoryEntry {
 
 int (*__initcall_first)(void) __init_call = NULL;
 void (*__exitcall_first)(void) __exit_call = NULL;
+extern int (*__initcall_modules_end)(void);
 
 static int get_line_height(QEditScreen *screen, int style_index);
 void print_at_byte(QEditScreen *screen,
@@ -6344,7 +6345,8 @@ static inline void init_all_modules(void)
         ptr++;
 #endif
         initcall = *ptr;
-        if (initcall == NULL)
+        if (initcall == NULL ||
+            initcall == __initcall_modules_end)
             break;
         initcall();
     }
