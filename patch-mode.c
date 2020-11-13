@@ -136,6 +136,7 @@ int patch_init(void)
     patch_mode.name = "Patch";
     patch_mode.mode_probe = patch_mode_probe;
     patch_mode.mode_init = patch_mode_init;
+    patch_mode.mode_flags = MODEF_NOCMD;
 
     qe_register_mode(&patch_mode);
 

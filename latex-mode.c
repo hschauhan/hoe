@@ -148,6 +148,7 @@ static int latex_init(void)
     latex_mode.name = "LaTeX";
     latex_mode.mode_probe = latex_mode_probe;
     latex_mode.mode_init = latex_mode_init;
+    latex_mode.mode_flags = MODEF_NOCMD;
 
     qe_register_mode(&latex_mode);
 
