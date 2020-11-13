@@ -108,6 +108,7 @@ CmdDef basic_commands[] = {
 
     /* non standard mappings */
     CMD0( KEY_CTRLXRET('l'), KEY_NONE, "toggle-line-numbers", do_line_numbers)
+    CMD0( KEY_CTRLXRET('s'), KEY_F7, "display-tabs", do_show_tabs)
     CMD0( KEY_CTRLXRET('t'), KEY_NONE, "truncate-lines", do_line_truncate )
     CMD0( KEY_CTRLXRET('w'), KEY_NONE, "word-wrap", do_word_wrap)
     CMD0( KEY_NONE, KEY_NONE, "delete-trailing-whitespace", do_delete_trailing_whitespace)

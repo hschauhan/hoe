@@ -655,6 +655,7 @@ typedef struct EditState {
     int cur_rtl;     /* TRUE if the cursor on over RTL chars */
     enum WrapType wrap;
     int line_numbers;
+    int show_tabs;
     int tab_size;
     int indent_size;
     int indent_tabs_mode; /* if true, use tabs to indent */

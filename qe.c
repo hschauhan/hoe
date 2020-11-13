@@ -1731,6 +1731,11 @@ void do_line_numbers(EditState *s)
     s->line_numbers = !s->line_numbers;
 }
 
+void do_show_tabs(EditState *s)
+{
+    s->show_tabs = !s->show_tabs;
+}
+
 void do_line_truncate(EditState *s)
 {
     if (s->wrap == WRAP_TRUNCATE)
@@ -2952,6 +2957,10 @@ int text_display(EditState *s, DisplayState *ds, int offset)
             } else if ((c >= 128 && c < 128 + 32) ||
                        (s->screen->charset != &charset_utf8 && c >= 256)) {
                 display_printf(ds, offset0, offset, "\\u%04x", c);
+            } else if (c == '\t' && s->show_tabs) {
+		display_printf(ds, offset0, offset, "^-------", c);
+            } else if (c == ' ' && s->show_tabs) {
+		display_printf(ds, offset0, offset, ".", c);
             } else {
                 if (char_index < colored_nb_chars)
                     c = colored_chars[char_index];
