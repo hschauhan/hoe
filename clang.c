@@ -59,6 +59,7 @@ enum {
     C_STRING,
     C_STRING_Q,
     C_PREPROCESS,
+    C_IF0,
 };
 
 void c_colorize_line(unsigned int *buf, int len, 
@@ -82,6 +83,8 @@ void c_colorize_line(unsigned int *buf, int len,
         goto parse_string;
     case C_PREPROCESS:
         goto parse_preprocessor;
+    case C_IF0:
+        goto parse_disabled_block;
     default:
         break;
     }
@@ -117,6 +120,30 @@ void c_colorize_line(unsigned int *buf, int len,
             }
             break;
         case '#':
+            if (p[1] == 'i' && p[2] == 'f' && p[3] == ' ' && p[4] == '0') {
+                state = C_IF0;
+                set_color(p_start, len, QE_STYLE_COMMENT);
+                goto the_end;
+            } else {
+                goto parse_preprocessor;
+            }
+        parse_disabled_block:
+            if (p[1] == 'e' && p[2] == 'n' && p[3] == 'd' && p[4] == 'i' && p[5] == 'f') {
+                state = 0;
+                set_color(p_start, len, QE_STYLE_COMMENT);
+                goto the_end;
+            } else if (p[1] == 'e' && p[2] == 'l') {
+                if ((p[3] == 'i' && p[4] == 'f') ||
+                    (p[3] == 's' && p[4] == 'e')) {
+                        state = 0;
+                        set_color(p_start, len, QE_STYLE_COMMENT);
+                        goto the_end;
+                    }
+            } else {
+                set_color(p_start, len, QE_STYLE_COMMENT);
+                state = C_IF0;
+                goto the_end;
+            }
             /* preprocessor */
         parse_preprocessor:
             p = buf + len;
