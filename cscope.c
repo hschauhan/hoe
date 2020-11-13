@@ -681,8 +681,6 @@ static int cscope_mode_probe(ModeProbeData *p)
         r++;
         if (!strcasecmp(r, "c")   ||
             !strcasecmp(r, "h")   ||
-            !strcasecmp(r, "asm") ||
-            !strcasecmp(r, "s")   ||
             !strcasecmp(r, "cpp"))
             return 100;
     }
