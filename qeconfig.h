@@ -1,5 +1,5 @@
 /*
- * default qemacs configuration 
+ * default qemacs configuration
  */
 CmdDef basic_commands[] = {
     CMD1( KEY_DEFAULT, KEY_NONE, "self-insert-command", do_char, ' ')
@@ -18,7 +18,7 @@ CmdDef basic_commands[] = {
     CMD0( KEY_CTRL('d'), KEY_DELETE, "delete-char", do_delete_char)
     CMD0( 127, KEY_NONE, "backward-delete-char", do_backspace)
     CMD0( KEY_META('%'), KEY_NONE, "match-parenthesis", do_match_parenthesis)
-    CMD1( KEY_META(KEY_BACKSPACE) , KEY_NONE, 
+    CMD1( KEY_META(KEY_BACKSPACE) , KEY_NONE,
           "backward-delete-word", do_delete_word, -1)
     CMD1( KEY_META('d') , KEY_NONE, "delete-word", do_delete_word, 1)
     CMD1( KEY_CTRL('k'), KEY_NONE, "kill-line", do_kill_region, 2 )
@@ -38,13 +38,13 @@ CmdDef basic_commands[] = {
     CMD1( KEY_CTRLX(KEY_CTRL('w')), KEY_NONE, "write-file", do_save, 1 )
     CMD0( KEY_CTRLX(KEY_CTRL('c')), KEY_NONE, "suspend-emacs", do_quit )
     CMD( KEY_CTRLX(KEY_CTRL('f')), KEY_NONE, "find-file\0s{Find file: }[file]|file|", do_load)
-    CMD( KEY_CTRLX(KEY_CTRL('v')), KEY_NONE, "find-alternate-file\0s{Find alternate file: }[file]|file|", 
+    CMD( KEY_CTRLX(KEY_CTRL('v')), KEY_NONE, "find-alternate-file\0s{Find alternate file: }[file]|file|",
          do_find_alternate_file)
     CMD( KEY_CTRLX('b'), KEY_NONE,
          "switch-to-buffer\0s{Switch to buffer: }[buffer]|buffer|", do_switch_to_buffer)
-    CMD( KEY_CTRLX('k'), KEY_NONE, 
+    CMD( KEY_CTRLX('k'), KEY_NONE,
          "kill-buffer\0s{Kill buffer: }[buffer]|buffer|", do_kill_buffer)
-    CMD( KEY_CTRLX('i'), KEY_NONE, "insert-file\0s{Insert file: }[file]|file|", 
+    CMD( KEY_CTRLX('i'), KEY_NONE, "insert-file\0s{Insert file: }[file]|file|",
          do_insert_file)
     CMD0( KEY_CTRL('g'), KEY_NONE, "abort", do_break)
     CMD0( KEY_NONE, KEY_NONE, "doctor", do_doctor)
@@ -57,7 +57,7 @@ CmdDef basic_commands[] = {
     CMD( KEY_META('g'), KEY_NONE, "goto-line\0i{Goto line: }", do_goto_line)
     CMDi( KEY_NONE, KEY_NONE, "goto-char\0i{Goto char: }", do_goto_char)
     CMD( KEY_NONE, KEY_NONE, "global-set-key\0s{Set key globally: }s{command: }[command]|command|", do_global_set_key)
-    CMD0( KEY_CTRLX(KEY_CTRL('q')), KEY_NONE, "vc-toggle-read-only", 
+    CMD0( KEY_CTRLX(KEY_CTRL('q')), KEY_NONE, "vc-toggle-read-only",
           do_toggle_read_only)
     CMD0( KEY_META('q'), KEY_NONE, "fill-paragraph", do_fill_paragraph)
     CMD0( KEY_META('{'), KEY_NONE, "backward-paragraph", do_backward_paragraph)
@@ -65,9 +65,9 @@ CmdDef basic_commands[] = {
     CMD0( KEY_CTRLX(KEY_CTRL('x')), KEY_NONE, "exchange-point-and-mark", do_exchange_point_and_mark)
     CMD1( KEY_META('l'), KEY_NONE, "downcase-word", do_changecase_word, 0)
     CMD1( KEY_META('u'), KEY_NONE, "upcase-word", do_changecase_word, 1)
-    CMD1( KEY_CTRLX(KEY_CTRL('l')), KEY_NONE, "downcase-region", 
+    CMD1( KEY_CTRLX(KEY_CTRL('l')), KEY_NONE, "downcase-region",
           do_changecase_region, 0)
-    CMD1( KEY_CTRLX(KEY_CTRL('u')), KEY_NONE, "upcase-region", 
+    CMD1( KEY_CTRLX(KEY_CTRL('u')), KEY_NONE, "upcase-region",
           do_changecase_region, 1)
     /* keyboard macros */
     CMD0( KEY_CTRLX('('), KEY_NONE, "start-kbd-macro", do_start_macro)
@@ -80,23 +80,23 @@ CmdDef basic_commands[] = {
     CMD0( KEY_CTRLX('1'), KEY_NONE, "delete-other-windows", do_delete_other_windows)
     CMD1( KEY_CTRLX('2'), KEY_NONE, "split-window-vertically", do_split_window, 0)
     CMD1( KEY_CTRLX('3'), KEY_NONE, "split-window-horizontally", do_split_window, 1)
-    
+
     /* help */
     CMD0( KEY_CTRLH(KEY_CTRL('h')), KEY_F1, "help-for-help", do_help_for_help)
-    CMD0( KEY_CTRLH('b'), KEY_NONE, "describe-bindings", 
+    CMD0( KEY_CTRLH('b'), KEY_NONE, "describe-bindings",
           do_describe_bindings)
-    CMD0( KEY_CTRLH('c'), KEY_NONE, "describe-key-briefly", 
+    CMD0( KEY_CTRLH('c'), KEY_NONE, "describe-key-briefly",
           do_describe_key_briefly)
 
     /* international */
-    CMD( KEY_CTRLXRET('f'), KEY_NONE, "set-buffer-file-coding-system\0s{Charset: }[charset]", 
+    CMD( KEY_CTRLXRET('f'), KEY_NONE, "set-buffer-file-coding-system\0s{Charset: }[charset]",
          do_set_buffer_file_coding_system)
     CMD( KEY_NONE, KEY_NONE, "convert-buffer-file-coding-system\0s{Charset: }[charset]",
          do_convert_buffer_file_coding_system)
     CMD0( KEY_CTRLXRET('b'), KEY_NONE, "toggle-bidir", do_toggle_bidir)
-    CMD( KEY_CTRLXRET(KEY_CTRL('\\')), KEY_NONE, 
+    CMD( KEY_CTRLXRET(KEY_CTRL('\\')), KEY_NONE,
          "set-input-method\0s{Input method: }[input]", do_set_input_method)
-    CMD0( KEY_CTRL('\\'), KEY_NONE, 
+    CMD0( KEY_CTRL('\\'), KEY_NONE,
           "switch-input-method", do_switch_input_method)
 
     /* styles & display */
@@ -105,19 +105,27 @@ CmdDef basic_commands[] = {
     CMD( KEY_NONE, KEY_NONE, "set-system-font\0ss", do_set_system_font)
     CMD0( KEY_CTRLX('f'), KEY_NONE, "toggle-full-screen", do_toggle_full_screen)
     CMD0( KEY_NONE, KEY_NONE, "toggle-mode-line", do_toggle_mode_line)
-    
+
     /* non standard mappings */
     CMD0( KEY_CTRLXRET('l'), KEY_NONE, "toggle-line-numbers", do_line_numbers)
     CMD0( KEY_CTRLXRET('t'), KEY_NONE, "truncate-lines", do_line_truncate )
     CMD0( KEY_CTRLXRET('w'), KEY_NONE, "word-wrap", do_word_wrap)
     CMD0( KEY_NONE, KEY_NONE, "delete-trailing-whitespace", do_delete_trailing_whitespace)
-    
+
     /* tab & indent */
     CMD( KEY_NONE, KEY_NONE, "set-tab-width\0i{Tab width: }", do_set_tab_width)
-    CMD( KEY_NONE, KEY_NONE, "set-indent-width\0i{Indent width: }", 
+    CMD( KEY_NONE, KEY_NONE, "set-indent-width\0i{Indent width: }",
          do_set_indent_width)
     CMD( KEY_NONE, KEY_NONE, "set-indent-tabs-mode\0i{Indent tabs mode (0 or 1): }",
          do_set_indent_tabs_mode)
+
+    /* global tab & indent */
+    CMD( KEY_NONE, KEY_NONE, "global-set-tab-width\0i{Tab width: }", do_global_set_tab_width)
+    CMD( KEY_NONE, KEY_NONE, "global-set-indent-width\0i{Indent width: }",
+         do_global_set_indent_width)
+    CMD( KEY_NONE, KEY_NONE, "global-set-indent-tabs-mode\0i{Indent tabs mode (0 or 1): }",
+         do_global_set_indent_tabs_mode)
+
     CMD_DEF_END,
 };
 

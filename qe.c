@@ -65,6 +65,14 @@ static QEditScreen global_screen;
 static int screen_width = 0;
 static int screen_height = 0;
 
+#define DEFAULT_INDENT_SIZE		8
+#define DEFAULT_TAB_SIZE		8
+#define DEFAULT_INDENT_TABS_MODE	1
+
+int g_indent_size = DEFAULT_INDENT_SIZE;
+int g_tab_size = DEFAULT_TAB_SIZE;
+int g_indent_tabs_mode = DEFAULT_INDENT_TABS_MODE;
+
 /* mode handling */
 
 void qe_register_mode(ModeDef *m)
@@ -1768,6 +1776,23 @@ void do_set_indent_width(EditState *s, int indent_width)
 void do_set_indent_tabs_mode(EditState *s, int mode)
 {
     s->indent_tabs_mode = (mode != 0);
+}
+
+void do_global_set_tab_width(EditState *s, int tab_width)
+{
+    if (tab_width > 1)
+        g_tab_size = tab_width;
+}
+
+void do_global_set_indent_width(EditState *s, int indent_width)
+{
+    if (indent_width > 1)
+        g_indent_size = indent_width;
+}
+
+void do_global_set_indent_tabs_mode(EditState *s, int mode)
+{
+    g_indent_tabs_mode = (mode != 0);
 }
 
 void do_quit(EditState *s);
@@ -3865,6 +3890,9 @@ EditState *edit_new(EditBuffer *b,
     s->x2 = x1 + width;
     s->y2 = y1 + height;
     s->flags = flags;
+    s->indent_size = g_indent_size;
+    s->indent_tabs_mode = g_indent_tabs_mode;
+    s->tab_size = g_tab_size;
     compute_client_area(s);
     s->next_window = qs->first_window;
     qs->first_window = s;
@@ -6008,8 +6036,9 @@ int text_mode_init(EditState *s, ModeSavedData *saved_data)
     if (!saved_data) {
         memset(s, 0, SAVED_DATA_SIZE);
         s->insert = 1;
-        s->tab_size = 8;
-        s->indent_size = 4;
+        s->tab_size = g_tab_size;
+        s->indent_size = g_indent_size;
+        s->indent_tabs_mode = g_indent_tabs_mode;
         s->default_style = QE_STYLE_DEFAULT;
         s->wrap = WRAP_LINE;
     } else {
