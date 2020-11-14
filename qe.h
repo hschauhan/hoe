@@ -14,6 +14,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <time.h>
 
 #ifdef HAVE_QE_CONFIG_H
 #include "config.h"

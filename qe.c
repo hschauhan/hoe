@@ -1841,6 +1841,16 @@ void basic_mode_line(EditState *s, char *buf, int buf_size, int c1)
     q += sprintf(q, ")--");
 }
 
+char *get_date_time(void)
+{
+    time_t rawtime;
+    struct tm *timeinfo;
+
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    return asctime(timeinfo);
+}
+
 void text_mode_line(EditState *s, char *buf, int buf_size)
 {
     int line_num, col_num, wrap_mode;
@@ -1873,6 +1883,7 @@ void text_mode_line(EditState *s, char *buf, int buf_size)
     if (s->b->total_size > 0)
         percent = (s->offset * 100) / s->b->total_size;
     q += sprintf(q, "--%d%%", percent);
+    q += sprintf(q, "    (version: %s)", QE_VERSION);
     *q = '\0';
 }
 
@@ -6329,7 +6340,8 @@ void qe_register_cmd_line_options(CmdOptionDef *table)
 static void show_help(void)
 {
     CmdOptionDef *p;
-    printf("QEmacs version " QE_VERSION ", Copyright (c) 2000-2003 Fabrice Bellard\n");
+    printf("BASE Qemacs version 0.3.3, Copyright (c) 2000-2003 Fabrice Bellard\n");
+    printf("HoE version " QE_VERSION " Copyright (c) 2020 Himanshu Chauhan\n");
 
     /* generate usage */
     printf("usage: qe");
@@ -6361,9 +6373,19 @@ static void show_help(void)
     exit(1);
 }
 
+static void show_version(void)
+{
+    printf("Himanshu's Own Emacs - HoE - Copyright (c) 2020 Himanshu Chauhan\n");
+    printf("\t\tVersion: " QE_VERSION "\n");
+    printf("Based on Qemacs 0.3.3 => Copyright (c) 2000-2003 Fabrice Bellard\n");
+    exit(1);
+}
+
 static CmdOptionDef cmd_options[] = {
     { "h", NULL, 0, "show help",
       {func_noarg: show_help}},
+    { "v", NULL, 0, "show version",
+      {func_noarg: show_version}},
     { NULL },
 };
 
