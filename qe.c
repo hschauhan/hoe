@@ -68,11 +68,12 @@ static int screen_height = 0;
 #define DEFAULT_INDENT_SIZE		8
 #define DEFAULT_TAB_SIZE		8
 #define DEFAULT_INDENT_TABS_MODE	1
+#define DEFAULT_LINE_NUM_MODE		0
 
 int g_indent_size = DEFAULT_INDENT_SIZE;
 int g_tab_size = DEFAULT_TAB_SIZE;
 int g_indent_tabs_mode = DEFAULT_INDENT_TABS_MODE;
-
+int g_line_num_mode = DEFAULT_LINE_NUM_MODE;
 /* mode handling */
 
 void qe_register_mode(ModeDef *m)
@@ -1731,6 +1732,11 @@ void do_line_numbers(EditState *s)
     s->line_numbers = !s->line_numbers;
 }
 
+void do_global_set_line_numbers(EditState *s, int mode)
+{
+    g_line_num_mode = mode;
+}
+
 void do_show_tabs(EditState *s)
 {
     s->show_tabs = !s->show_tabs;
@@ -2883,6 +2889,7 @@ int text_display(EditState *s, DisplayState *ds, int offset)
     int char_index, colored_nb_chars;
 
     line_num = 0; /* avoid warning */
+    s->line_numbers = g_line_num_mode;
     if (s->line_numbers || s->colorize_func) {
         eb_get_pos(s->b, &line_num, &col_num, offset);
     }
@@ -2917,7 +2924,6 @@ int text_display(EditState *s, DisplayState *ds, int offset)
 
     display_bol_bidir(ds, base, embedding_max_level);
 
-    /* line numbers */
     if (s->line_numbers) {
         display_printf(ds, -1, -1, "%6d  ", line_num + 1);
     }
@@ -3913,6 +3919,7 @@ EditState *edit_new(EditBuffer *b,
     s->indent_size = g_indent_size;
     s->indent_tabs_mode = g_indent_tabs_mode;
     s->tab_size = g_tab_size;
+    s->line_numbers = g_line_num_mode;
     compute_client_area(s);
     s->next_window = qs->first_window;
     qs->first_window = s;
