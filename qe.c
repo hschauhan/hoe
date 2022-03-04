@@ -78,6 +78,7 @@ int g_indent_tabs_mode = DEFAULT_INDENT_TABS_MODE;
 int g_line_num_mode = DEFAULT_LINE_NUM_MODE;
 int g_highlight_over_margin = DEFAULT_HIGHLIGHT_OVER_MARGIN;
 int g_margin_size = DEFAULT_MARGIN_SIZE;
+char g_backup_dir[PATH_MAX];
 /* mode handling */
 
 void qe_register_mode(ModeDef *m)
@@ -1750,6 +1751,52 @@ void do_global_set_margin_size(EditState *s, int size)
 {
     if (size > 0)
         g_margin_size = size;
+}
+
+void do_global_set_backup_dir(EditState *s, const char *backup_dir)
+{
+    struct stat st;
+    char _bdir[PATH_MAX];
+    char _rdir[PATH_MAX];
+    int rc;
+    char *home_path;
+
+    if (backup_dir == NULL)
+        return;
+
+    if (backup_dir[0] == '~') {
+        backup_dir++;
+        home_path = getenv("HOME");
+        memset(_rdir, 0, sizeof(_rdir));
+        strncat(_rdir, home_path, sizeof(_rdir)-1);
+        strncat(_rdir, backup_dir, (sizeof(_rdir)-strlen(home_path)-1));
+    } else
+        strncpy(_rdir, backup_dir, sizeof(_rdir)-1);
+
+    /* follow symlinks if any */
+    if (realpath(_rdir, _bdir) == NULL) {
+        put_status(s, "Can not get realpath to backup directory. (\"%s\")", backup_dir);
+        return;
+    }
+
+    if ((rc = stat(_bdir, &st)) == 0) {
+        if (S_ISDIR(st.st_mode)) {
+            if (strlen(_bdir) >= sizeof(g_backup_dir)) {
+                put_status(s, "Backup directory path too long!!");
+                return;
+            }
+
+	    strncpy(g_backup_dir, _bdir, sizeof(g_backup_dir));
+            put_status(s, "Backup directory set to \"%s\"", g_backup_dir);
+        }
+    } else
+	put_status(s, "Given backup directory either doesn't exist, not writable "
+                   "or not a directory (Error:%d)", rc);
+}
+
+void do_show_backup_dir(EditState *s)
+{
+    put_status(s, "Backup directory is \"%s\"", g_backup_dir);
 }
 
 void do_show_tabs(EditState *s)
@@ -6496,7 +6543,7 @@ void qe_init(void *opaque)
     int i, optind, is_player;
     char *home_path;
     char *fstr;
-    int line = 0;
+    int line = 0, rc = 0;
 
     /* compute resources path */
     strcpy(qe_state.res_path,
@@ -6507,7 +6554,27 @@ void qe_init(void *opaque)
         pstrcat(qe_state.res_path, sizeof(qe_state.res_path), ":");
         pstrcat(qe_state.res_path, sizeof(qe_state.res_path), home_path);
         pstrcat(qe_state.res_path, sizeof(qe_state.res_path), "/.hoe");
+
+	/* setup the backup directory */
+	memset(g_backup_dir, 0, sizeof(g_backup_dir));
+        pstrcat(g_backup_dir, sizeof(g_backup_dir), home_path);
+        pstrcat(g_backup_dir, sizeof(g_backup_dir), "/.hoe");
+        rc = mkdir(g_backup_dir, 0700);
+        if (rc < 0 && errno != EEXIST) {
+            perror("Could not create .hoe directory");
+	    memset(g_backup_dir, 0, sizeof(g_backup_dir));
+	    goto _no_backup_dir;
+        } else if (rc == 0 || (rc < 0 && errno == EEXIST)) {
+            /* the .hoe was created or it exists */
+            pstrcat(g_backup_dir, sizeof(g_backup_dir), "/file_backups");
+	    rc = mkdir(g_backup_dir, 0700);
+            if (rc < 0 && errno != EEXIST) {
+                perror("Could not create backup directory");
+		memset(g_backup_dir, 0, sizeof(g_backup_dir));
+            }
+        }
     }
+_no_backup_dir:
     qe_state.macro_key_index = -1; /* no macro executing */
     qe_state.ungot_key = -1; /* no unget key */
 

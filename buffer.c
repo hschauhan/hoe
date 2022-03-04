@@ -25,6 +25,7 @@ static void eb_addlog(EditBuffer *b, enum LogOperation op,
                       int offset, int size);
 
 extern EditBufferDataType raw_data_type;
+extern char g_backup_dir[];
 
 EditBufferDataType *first_buffer_data_type = NULL;
 
@@ -1426,7 +1427,7 @@ void eb_register_data_type(EditBufferDataType *bdt)
 int save_buffer(EditBuffer *b)
 {
     int ret, mode;
-    char buf1[MAX_FILENAME_SIZE];
+    char buf1[PATH_MAX];
     const char *filename;
     struct stat st;
 
@@ -1440,7 +1441,9 @@ int save_buffer(EditBuffer *b)
         mode = st.st_mode & 0777;
 
     /* backup old file if present */
-    strcpy(buf1, filename);
+    strcpy(buf1, g_backup_dir);
+    strcat(buf1, "/");
+    strcat(buf1, qe_basename(filename));
     strcat(buf1, "~");
     rename(filename, buf1);
 

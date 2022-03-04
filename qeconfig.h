@@ -108,9 +108,10 @@ CmdDef basic_commands[] = {
 
     /* non standard mappings */
     CMD0( KEY_CTRLXRET('l'), KEY_NONE, "toggle-line-numbers", do_line_numbers)
-    CMD0( KEY_NONE, KEY_NONE, "global-set-line-num-mode\0i{Line number mode (0 or 1): }", do_global_set_line_numbers)
-    CMD0( KEY_CTRLXRET('s'), KEY_F7, "display-tabs", do_show_tabs)
-    CMD0( KEY_CTRLXRET('t'), KEY_NONE, "truncate-lines", do_line_truncate )
+    CMD0( KEY_NONE, KEY_NONE, "global-set-line-num-mode\0i{Line number mode (0 or 1): }",
+          do_global_set_line_numbers)
+    CMD0( KEY_CTRLXRET('t'), KEY_F7, "display-tabs", do_show_tabs)
+    CMD0( KEY_CTRLXRET('k'), KEY_NONE, "truncate-lines", do_line_truncate )
     CMD0( KEY_CTRLXRET('w'), KEY_NONE, "word-wrap", do_word_wrap)
     CMD0( KEY_NONE, KEY_NONE, "delete-trailing-whitespace", do_delete_trailing_whitespace)
 
@@ -127,10 +128,14 @@ CmdDef basic_commands[] = {
          do_global_set_indent_width)
     CMD( KEY_NONE, KEY_NONE, "global-set-indent-tabs-mode\0i{Indent tabs mode (0 or 1): }",
          do_global_set_indent_tabs_mode)
-    CMD( KEY_NONE, KEY_NONE, "global-set-highlight-over-margin-mode\0i{highlight over margin mode (0 or 1): }",
+    CMD( KEY_NONE, KEY_NONE,
+         "global-set-highlight-over-margin-mode\0i{highlight over margin mode (0 or 1): }",
          do_global_set_highlight_over_margin)
     CMD( KEY_NONE, KEY_NONE, "global-set-margin-size\0i{Size of Margin: }",
          do_global_set_margin_size)
+    CMD( KEY_CTRLXRET(KEY_CTRL('s')), KEY_NONE, "global-set-backup-dir\0s{Backup Directory: }",
+	 do_global_set_backup_dir)
+    CMD0( KEY_CTRLXRET(KEY_CTRL('b')), KEY_NONE, "show-backup-dir", do_show_backup_dir)
 
 
     CMD_DEF_END,

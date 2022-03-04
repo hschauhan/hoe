@@ -12,9 +12,11 @@
 #include <signal.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <time.h>
+#include <limits.h>
 
 #ifdef HAVE_QE_CONFIG_H
 #include "config.h"
