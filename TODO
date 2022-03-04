@@ -5,3 +5,4 @@ General TODO:
 - current path in compile set to current buffer path
 - avoid problems with popups (kill_buffer, delete_window, split_window)
 - avoid error in new file
+- support for plugins written in python
