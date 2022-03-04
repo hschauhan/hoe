@@ -20,6 +20,9 @@
               QE_FAMILY_SERIF, 12)
 
     /* coloring styles */
+    STYLE_DEF(QE_STYLE_MARGIN_HIGHLIGHT, "margin-highlight",
+              QERGB(0xff, 0xff, 0xff), QERGB(0x00, 0x00, 0x00),
+              0, 0)
     STYLE_DEF(QE_STYLE_HIGHLIGHT, "highlight",
               QERGB(0xf8, 0xd8, 0xb0), QERGB(0x00, 0x00, 0x00),
               0, 0)

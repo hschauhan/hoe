@@ -1,6 +1,6 @@
 /*
- * C mode for QEmacs.
- * Copyright (c) 2001, 2002 Fabrice Bellard.
+ * Python mode for QEmacs.
+ * Copyright (c) 2022, Himanshu Chauhan
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,16 +18,16 @@
  */
 #include "qe.h"
 
-static const char c_keywords[] = 
-"|auto|break|case|const|continue|do|else|enum|extern|for|goto|"
-"if|register|return|static|struct|switch|typedef|union|volatile|while|";
+static const char py_keywords[] = 
+	"|def|break|continue|do|else|for|elif|try|except|pass|throw|"
+	"if|return|while|with|as|";
 
 /* NOTE: 'var' is added for javascript */
-static const char c_types[] = 
+static const char py_types[] = 
 "|char|double|float|int|long|unsigned|short|signed|void|var|"
 "u8|uint8_t|u16|uint16_t|u32|uint32_t|u64|uint64_t|";
 
-static int get_c_keyword(char *buf, int buf_size, unsigned int **pp)
+static int get_py_keyword(char *buf, int buf_size, unsigned int **pp)
 {
     unsigned int *p, c;
     char *q;
@@ -55,15 +55,14 @@ static int get_c_keyword(char *buf, int buf_size, unsigned int **pp)
 
 /* colorization states */
 enum {
-    C_COMMENT = 1,
-    C_STRING,
-    C_STRING_Q,
-    C_PREPROCESS,
-    C_IF0,
+    PY_COMMENT = 1,
+    PY_STRING,
+    PY_STRING_Q,
+    PY_IF0,
 };
 
-void c_colorize_line(unsigned int *buf, int len, 
-                     int *colorize_state_ptr, int state_only)
+void py_colorize_line(unsigned int *buf, int len, 
+		      int *colorize_state_ptr, int state_only)
 {
     int c, state, l, type_decl;
     unsigned int *p, *p_start, *p1;
@@ -76,15 +75,9 @@ void c_colorize_line(unsigned int *buf, int len,
 
     /* if already in a state, go directly in the code parsing it */
     switch(state) {
-    case C_COMMENT:
-        goto parse_comment;
-    case C_STRING:
-    case C_STRING_Q:
+    case PY_STRING:
+    case PY_STRING_Q:
         goto parse_string;
-    case C_PREPROCESS:
-        goto parse_preprocessor;
-    case C_IF0:
-        goto parse_disabled_block;
     default:
         break;
     }
@@ -95,70 +88,18 @@ void c_colorize_line(unsigned int *buf, int len,
         switch(c) {
         case '\n':
             goto the_end;
-        case '/':
-            p++;
-            if (*p == '*') {
-                /* normal comment */
-                p++;
-                state = C_COMMENT;
-            parse_comment:
-                while (*p != '\n') {
-                    if (p[0] == '*' && p[1] == '/') {
-                        p += 2;
-                        state = 0;
-                        break;
-                    } else {
-                        p++;
-                    }
-                }
-                set_color(p_start, p - p_start, QE_STYLE_COMMENT);
-            } else if (*p == '/') {
-                /* line comment */
-                while (*p != '\n') 
-                    p++;
-                set_color(p_start, p - p_start, QE_STYLE_COMMENT);
-            }
-            break;
         case '#':
-            if (p[1] == 'i' && p[2] == 'f' && p[3] == ' ' && p[4] == '0') {
-                state = C_IF0;
-                set_color(p_start, len, QE_STYLE_COMMENT);
-                goto the_end;
-            } else {
-                goto parse_preprocessor;
-            }
-        parse_disabled_block:
-            if (p[1] == 'e' && p[2] == 'n' && p[3] == 'd' && p[4] == 'i' && p[5] == 'f') {
-                state = 0;
-                set_color(p_start, len, QE_STYLE_COMMENT);
-                goto the_end;
-            } else if (p[1] == 'e' && p[2] == 'l') {
-                if ((p[3] == 'i' && p[4] == 'f') ||
-                    (p[3] == 's' && p[4] == 'e')) {
-                        state = 0;
-                        set_color(p_start, len, QE_STYLE_COMMENT);
-                        goto the_end;
-                    }
-            } else {
-                set_color(p_start, len, QE_STYLE_COMMENT);
-                state = C_IF0;
-                goto the_end;
-            }
-            /* preprocessor */
-        parse_preprocessor:
-            p = buf + len;
-            set_color(p_start, p - p_start, QE_STYLE_PREPROCESS);
-            if (p > buf && (p[-1] & CHAR_MASK) == '\\') 
-                state = C_PREPROCESS;
-            else
-                state = 0;
-            goto the_end;
+	    /* line comment */
+	    while (*p != '\n') 
+		    p++;
+	    set_color(p_start, p - p_start, QE_STYLE_COMMENT);
+            break;
         case '\'':
-            state = C_STRING_Q;
+            state = PY_STRING_Q;
             goto string;
         case '\"':
             /* strings/chars */
-            state = C_STRING;
+            state = PY_STRING;
         string:
             p++;
         parse_string:
@@ -168,8 +109,8 @@ void c_colorize_line(unsigned int *buf, int len,
                     if (*p == '\n')
                         break;
                     p++;
-                } else if ((*p == '\'' && state == C_STRING_Q) ||
-                           (*p == '\"' && state == C_STRING)) {
+                } else if ((*p == '\'' && state == PY_STRING_Q) ||
+                           (*p == '\"' && state == PY_STRING)) {
                     p++;
                     state = 0;
                     break;
@@ -189,14 +130,14 @@ void c_colorize_line(unsigned int *buf, int len,
                 (c >= 'A' && c <= 'Z') || 
                 (c == '_')) {
                 
-                l = get_c_keyword(kbuf + 1, sizeof(kbuf) - 2, &p);
+                l = get_py_keyword(kbuf + 1, sizeof(kbuf) - 2, &p);
                 kbuf[0] = '|';
                 kbuf[l + 1] = '|';
                 kbuf[l + 2] = '\0';
                 p1 = p;
-                if (strstr(c_keywords, kbuf)) {
+                if (strstr(py_keywords, kbuf)) {
                     set_color(p_start, p1 - p_start, QE_STYLE_KEYWORD);
-                } else if (strstr(c_types, kbuf)) {
+                } else if (strstr(py_types, kbuf)) {
                     /* c type */
                     while (*p == ' ' || *p == '\t')
                         p++;
@@ -206,9 +147,7 @@ void c_colorize_line(unsigned int *buf, int len,
                     }
                     set_color(p_start, p1 - p_start, QE_STYLE_TYPE);
                 } else {
-                    /* assume typedef if starting at first column */
-                    if (p_start == buf)
-                        type_decl = 1;
+		    type_decl = 1;
 
                     if (type_decl) {
                         while (*p == ' ' || *p == '\t')
@@ -231,7 +170,6 @@ void c_colorize_line(unsigned int *buf, int len,
             break;
         }
     }
-
  the_end:
     /* highlight the lines that overstep the margins */
     if (g_highlight_over_margin && len > g_margin_size) {
@@ -240,6 +178,7 @@ void c_colorize_line(unsigned int *buf, int len,
 	    set_color(buf+g_margin_size, len - g_margin_size,
 		      QE_STYLE_MARGIN_HIGHLIGHT);
     }
+
     *colorize_state_ptr = state;
 }
 
@@ -319,7 +258,7 @@ static void insert_spaces(EditState *s, int *offset_ptr, int i)
     *offset_ptr = offset;
 }
 
-static void do_c_indent(EditState *s)
+static void do_py_indent(EditState *s)
 {
     int offset, offset1, offset2, offsetl, c, pos, size, line_num, col_num;
     int i, eoi_found, len, pos1, lpos, style, line_num1, state;
@@ -522,7 +461,7 @@ static void do_c_indent(EditState *s)
     s->offset = offset;
 }
     
-void do_c_indent_region(EditState *s)
+void do_py_indent_region(EditState *s)
 {
     int col_num, p1, p2, tmp;
 
@@ -538,17 +477,17 @@ void do_c_indent_region(EditState *s)
 
     for(;p1<=p2;p1++) {
         s->offset = eb_goto_pos(s->b, p1, 0);
-        do_c_indent(s);
+        do_py_indent(s);
     }
 }
 
-void do_c_electric(EditState *s, int key)
+void do_py_electric(EditState *s, int key)
 {
     do_char(s, key);
-    do_c_indent(s);
+    do_py_indent(s);
 }
 
-static int c_mode_probe(ModeProbeData *p)
+static int py_mode_probe(ModeProbeData *p)
 {
     const char *r;
 
@@ -556,50 +495,45 @@ static int c_mode_probe(ModeProbeData *p)
     r = strrchr((char *)p->filename, '.');
     if (r) {
         r++;
-        if (!strcasecmp(r, "c") ||
-            !strcasecmp(r, "h") ||
-            !strcasecmp(r, "cpp"))
+        if (!strcasecmp(r, "py"))
             return 100;
     }
     return 0;
 }
 
-int c_mode_init(EditState *s, ModeSavedData *saved_data)
+int py_mode_init(EditState *s, ModeSavedData *saved_data)
 {
     int ret;
     ret = text_mode_init(s, saved_data);
     if (ret)
         return ret;
-    set_colorize_func(s, c_colorize_line);
+    set_colorize_func(s, py_colorize_line);
     return ret;
 }
 
-/* specific C commands */
-static CmdDef c_commands[] = {
-    CMD0( KEY_CTRL('i'), KEY_NONE, "c-indent-command", do_c_indent)
-    CMD0( KEY_NONE, KEY_NONE, "c-indent-region", do_c_indent_region)
-    CMD1( ';', KEY_NONE, "c-electric-semi&comma", do_c_electric, ';')
-    CMD1( ':', KEY_NONE, "c-electric-colon", do_c_electric, ':')
-    CMD1( KEY_NONE, KEY_NONE, "c-electric-obrace", do_c_electric, '{')
-    CMD1( KEY_NONE, KEY_NONE, "c-electric-cbrace", do_c_electric, '}')
+/* specific python commands */
+static CmdDef py_commands[] = {
+    CMD0( KEY_CTRLXRET('i'), KEY_NONE, "py-indent-command", do_py_indent)
+    CMD0( KEY_NONE, KEY_NONE, "py-indent-region", do_py_indent_region)
+    CMD1( ':', KEY_NONE, "py-electric-colon", do_py_electric, ':')
     CMD_DEF_END,
 };
 
-static ModeDef c_mode;
+static ModeDef py_mode;
 
-int c_init(void)
+int py_init(void)
 {
-    /* c mode is almost like the text mode, so we copy and patch it */
-    memcpy(&c_mode, &text_mode, sizeof(ModeDef));
-    c_mode.name = "C";
-    c_mode.mode_probe = c_mode_probe;
-    c_mode.mode_init = c_mode_init;
+    /* py mode is almost like the text mode, so we copy and patch it */
+    memcpy(&py_mode, &text_mode, sizeof(ModeDef));
+    py_mode.name = "Python";
+    py_mode.mode_probe = py_mode_probe;
+    py_mode.mode_init = py_mode_init;
 
-    qe_register_mode(&c_mode);
+    qe_register_mode(&py_mode);
 
-    qe_register_cmd_table(c_commands, "C");
+    qe_register_cmd_table(py_commands, "Python");
 
     return 0;
 }
 
-qe_module_init(c_init);
+qe_module_init(py_init);

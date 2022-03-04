@@ -127,6 +127,11 @@ CmdDef basic_commands[] = {
          do_global_set_indent_width)
     CMD( KEY_NONE, KEY_NONE, "global-set-indent-tabs-mode\0i{Indent tabs mode (0 or 1): }",
          do_global_set_indent_tabs_mode)
+    CMD( KEY_NONE, KEY_NONE, "global-set-highlight-over-margin-mode\0i{highlight over margin mode (0 or 1): }",
+         do_global_set_highlight_over_margin)
+    CMD( KEY_NONE, KEY_NONE, "global-set-margin-size\0i{Size of Margin: }",
+         do_global_set_margin_size)
+
 
     CMD_DEF_END,
 };

@@ -69,11 +69,15 @@ static int screen_height = 0;
 #define DEFAULT_TAB_SIZE		8
 #define DEFAULT_INDENT_TABS_MODE	1
 #define DEFAULT_LINE_NUM_MODE		0
+#define DEFAULT_HIGHLIGHT_OVER_MARGIN	0
+#define DEFAULT_MARGIN_SIZE		80
 
 int g_indent_size = DEFAULT_INDENT_SIZE;
 int g_tab_size = DEFAULT_TAB_SIZE;
 int g_indent_tabs_mode = DEFAULT_INDENT_TABS_MODE;
 int g_line_num_mode = DEFAULT_LINE_NUM_MODE;
+int g_highlight_over_margin = DEFAULT_HIGHLIGHT_OVER_MARGIN;
+int g_margin_size = DEFAULT_MARGIN_SIZE;
 /* mode handling */
 
 void qe_register_mode(ModeDef *m)
@@ -1735,6 +1739,17 @@ void do_line_numbers(EditState *s)
 void do_global_set_line_numbers(EditState *s, int mode)
 {
     g_line_num_mode = mode;
+}
+
+void do_global_set_highlight_over_margin(EditState *s, int mode)
+{
+    g_highlight_over_margin = mode;
+}
+
+void do_global_set_margin_size(EditState *s, int size)
+{
+    if (size > 0)
+        g_margin_size = size;
 }
 
 void do_show_tabs(EditState *s)
@@ -6424,6 +6439,7 @@ static inline void init_all_modules(void)
 {
     x11_init();
     c_init();
+    py_init();
 }
 #endif
 
