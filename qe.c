@@ -1794,6 +1794,18 @@ void do_global_set_backup_dir(EditState *s, const char *backup_dir)
                    "or not a directory (Error:%d)", rc);
 }
 
+void set_backup_dir_cb(void *opaque, char *buf)
+{
+    do_global_set_backup_dir((EditState *)opaque, buf);
+}
+
+void file_completion(StringArray *cs, const char *input);
+void do_set_backup_dir(EditState *s)
+{
+    minibuffer_edit(NULL, "Backup Directory:", NULL,
+		    file_completion, set_backup_dir_cb, (void *)s);
+}
+
 void do_show_backup_dir(EditState *s)
 {
     put_status(s, "Backup directory is \"%s\"", g_backup_dir);

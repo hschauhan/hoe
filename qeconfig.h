@@ -133,9 +133,11 @@ CmdDef basic_commands[] = {
          do_global_set_highlight_over_margin)
     CMD( KEY_NONE, KEY_NONE, "global-set-margin-size\0i{Size of Margin: }",
          do_global_set_margin_size)
-    CMD( KEY_CTRLXRET(KEY_CTRL('s')), KEY_NONE, "global-set-backup-dir\0s{Backup Directory: }",
+    CMD( KEY_NONE, KEY_NONE, "global-set-backup-directory",
 	 do_global_set_backup_dir)
-    CMD0( KEY_CTRLXRET(KEY_CTRL('b')), KEY_NONE, "show-backup-dir", do_show_backup_dir)
+    CMD0( KEY_CTRLXRET(KEY_CTRL('s')), KEY_NONE, "set-backup-directory",
+	 do_set_backup_dir)
+    CMD0( KEY_CTRLXRET(KEY_CTRL('b')), KEY_NONE, "show-backup-directory", do_show_backup_dir)
 
 
     CMD_DEF_END,
