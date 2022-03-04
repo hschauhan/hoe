@@ -211,6 +211,7 @@ typedef struct QECharset {
 
 extern QECharset charset_utf8, charset_8859_1; /* predefined charsets */
 extern QECharset *first_charset;
+extern int g_highlight_over_margin, g_margin_size;
 
 typedef struct CharsetDecodeState {
     /* 256 ushort table for hyper fast decoding */
@@ -1085,6 +1086,7 @@ void set_colorize_func(EditState *s, ColorizeFunc colorize_func);
 int get_colorized_line(EditState *s, unsigned int *buf, int buf_size,
                        int offset1, int line_num);
 void set_color(unsigned int *buf, int len, int style);
+void clear_color(unsigned int *buf, int len);
 
 void do_char(EditState *s, int key);
 void do_switch_to_buffer(EditState *s, const char *bufname);;

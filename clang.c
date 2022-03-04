@@ -231,7 +231,15 @@ void c_colorize_line(unsigned int *buf, int len,
             break;
         }
     }
+
  the_end:
+    /* highlight the lines that overstep the margins */
+    if (g_highlight_over_margin && len > g_margin_size) {
+	    /* clear previous from margin to the end of line */
+	    clear_color(buf+g_margin_size, len - g_margin_size);
+	    set_color(buf+g_margin_size, len - g_margin_size,
+		      QE_STYLE_MARGIN_HIGHLIGHT);
+    }
     *colorize_state_ptr = state;
 }
 

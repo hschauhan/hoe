@@ -723,6 +723,14 @@ void set_color(unsigned int *buf, int len, int style)
         buf[i] |= style;
 }
 
+void clear_color(unsigned int *buf, int len)
+{
+    int i;
+
+    for(i=0;i<len;i++)
+        buf[i] &= ~STYLE_MASK;
+}
+
 void css_strtolower(char *buf, int buf_size)
 {
     int c;
