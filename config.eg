@@ -22,6 +22,9 @@ global_set_key("C-c s u", "cscope-pop-mark");
 global-set-tab-width(8);
 global-set-indent-width(8);
 global-set-indent-tabs-mode(1);
+global-set-line-num-mode(1);
+global-set-highlight-over-margin-mode(100);
+global-set-margin-size(100);
 
 // set X11 display size
 set_display_size(80, 50);
@@ -35,7 +38,7 @@ set_system_font("sans", "helvetica,unifont");
 set_system_font("serif", "times,unifont");
 
 // simple styles
-set_style("mode-line", "background-color", "black");
+set_style("mode-line", "background-color", "green");
 set_style("mode-line", "color", "white");
 set_style("default", "background-color", "white");
 set_style("default", "color", "black");
