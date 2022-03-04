@@ -52,6 +52,7 @@ CmdDef basic_commands[] = {
     CMD1( KEY_CTRL('r'), KEY_NONE, "isearch-backward", do_isearch, -1 )
     CMD( KEY_META('%'), KEY_NONE, "query-replace\0s{Query replace: }|search|s{With: }|replace|", do_query_replace )
     CMD0( KEY_CTRLX('u'), KEY_CTRL('_'), "undo", do_undo)
+    CMD0( KEY_CTRL('t'), KEY_NONE, "transpose-char", do_transpose_char)
     CMD0( KEY_RET, KEY_NONE, "newline", do_return)
     CMD0( KEY_CTRL('l'), KEY_NONE, "refresh", do_refresh)
     CMD( KEY_META('g'), KEY_NONE, "goto-line\0i{Goto line: }", do_goto_line)
@@ -133,7 +134,7 @@ CmdDef basic_commands[] = {
          do_global_set_highlight_over_margin)
     CMD( KEY_NONE, KEY_NONE, "global-set-margin-size\0i{Size of Margin: }",
          do_global_set_margin_size)
-    CMD( KEY_NONE, KEY_NONE, "global-set-backup-directory",
+    CMD( KEY_NONE, KEY_NONE, "global-set-backup-directory\0s{Backup Directory: }",
 	 do_global_set_backup_dir)
     CMD0( KEY_CTRLXRET(KEY_CTRL('s')), KEY_NONE, "set-backup-directory",
 	 do_set_backup_dir)

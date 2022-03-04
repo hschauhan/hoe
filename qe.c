@@ -835,6 +835,24 @@ void do_backspace(EditState *s)
     }
 }
 
+void do_transpose_char(EditState *s)
+{
+    int offset1;
+    u8 ch[2], t;
+    int o_offs = s->offset;
+    eb_prevc(s->b, s->offset, &offset1);
+    eb_read(s->b, offset1, &ch[0], sizeof(ch));
+    if (offset1 < s->offset) {
+	    t = ch[0];
+	    ch[0] = ch[1];
+	    ch[1] = t;
+	    eb_delete(s->b, offset1, (s->offset - offset1+1));
+	    eb_insert(s->b, s->offset, ch, sizeof(ch));
+	    s->offset = o_offs;
+	    do_refresh(s);
+    }
+}
+
 /* return the cursor position relative to the screen. Note that xc is
    given in pixel coordinates */
 typedef struct {
@@ -1775,28 +1793,24 @@ void do_global_set_backup_dir(EditState *s, const char *backup_dir)
 
     /* follow symlinks if any */
     if (realpath(_rdir, _bdir) == NULL) {
-        put_status(s, "Can not get realpath to backup directory. (\"%s\")", backup_dir);
         return;
     }
 
     if ((rc = stat(_bdir, &st)) == 0) {
         if (S_ISDIR(st.st_mode)) {
             if (strlen(_bdir) >= sizeof(g_backup_dir)) {
-                put_status(s, "Backup directory path too long!!");
                 return;
             }
 
 	    strncpy(g_backup_dir, _bdir, sizeof(g_backup_dir));
-            put_status(s, "Backup directory set to \"%s\"", g_backup_dir);
         }
-    } else
-	put_status(s, "Given backup directory either doesn't exist, not writable "
-                   "or not a directory (Error:%d)", rc);
+    }
 }
 
 void set_backup_dir_cb(void *opaque, char *buf)
 {
     do_global_set_backup_dir((EditState *)opaque, buf);
+    put_status((EditState *)opaque, "Backup directory is now set to \"%s\"", buf);
 }
 
 void file_completion(StringArray *cs, const char *input);
