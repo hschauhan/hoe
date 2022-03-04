@@ -8,7 +8,7 @@ STRIP=strip -s -R .comment -R .note
 CFLAGS=-O2
 LDFLAGS=
 EXTRALIBS=-lm -ldl
-VERSION=0.3.4
+VERSION=0.3.5
 
 CFLAGS:=-fno-strict-aliasing -Wall -g $(CFLAGS)
 # use it for gcc >= 4.7.0
@@ -54,7 +54,7 @@ $(APP_NAME): $(OBJS) $(DEP_LIBS)
 	@echo "(LINK) $@"
 	@$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-qe.o: qe.c qe.h qestyles.h
+qe.o: qe.c qe.h qestyles.h config.h
 
 charset.o: charset.c qe.h qestyles.h
 
