@@ -25,6 +25,7 @@ global-set-indent-tabs-mode(1);
 global-set-line-num-mode(1);
 global-set-highlight-over-margin-mode(100);
 global-set-margin-size(100);
+//global-set-backup-directory("/home/hchauhan/hoebackups");
 
 // set X11 display size
 set_display_size(80, 50);
@@ -55,6 +56,10 @@ set_style("string", "color", "red");
 set_style("keyword", "font-family", "serif");
 set_style("keyword", "font-size", "18");
 set_style("keyword", "color", "green");
+
+set_style("type", "font-family", "serif");
+set_style("type", "font-size", "18");
+set_style("type", "color", "purple");
 
 set_style("function", "font-family", "serif");
 set_style("function", "font-size", "18");
