@@ -20,12 +20,15 @@
 
 static const char c_keywords[] = 
 "|auto|break|case|const|continue|do|else|enum|extern|for|goto|"
-"if|register|return|static|struct|switch|typedef|union|volatile|while|";
+"if|register|return|static|struct|switch|typedef|union|volatile|while|"
+"class|private|public|protected|try|except|template|typename|throw|"
+"using|namespace|catch|explicit|virtual|noexcept|operator|";
 
 /* NOTE: 'var' is added for javascript */
 static const char c_types[] = 
 "|char|double|float|int|long|unsigned|short|signed|void|var|"
-"u8|uint8_t|u16|uint16_t|u32|uint32_t|u64|uint64_t|";
+"u8|uint8_t|u16|uint16_t|u32|uint32_t|u64|uint64_t|bool|"
+"vector|ordered_map|unordered_map|string|nullptr|";
 
 static int get_c_keyword(char *buf, int buf_size, unsigned int **pp)
 {
