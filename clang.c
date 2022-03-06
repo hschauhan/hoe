@@ -22,7 +22,7 @@ static const char c_keywords[] =
 "|auto|break|case|const|continue|do|else|enum|extern|for|goto|"
 "if|register|return|static|struct|switch|typedef|union|volatile|while|"
 "class|private|public|protected|try|except|template|typename|throw|"
-"using|namespace|catch|explicit|virtual|noexcept|operator|";
+"using|namespace|catch|explicit|virtual|noexcept|operator|new|delete|";
 
 /* NOTE: 'var' is added for javascript */
 static const char c_types[] = 
