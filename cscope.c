@@ -654,7 +654,7 @@ static CmdDef cscope_global_commands[] = {
          do_cscope_operation, 8)
     CMD1( KEY_F9, KEY_NONE, "cscope-find-assignment",
          do_cscope_operation, 9)
-    CMD0( KEY_NONE, KEY_NONE, "cscope-pop-mark",
+    CMD0( KEY_F10, KEY_NONE, "cscope-pop-mark",
          do_cscope_pop_mark)
     CMD_DEF_END,
 };
